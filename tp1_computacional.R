@@ -16,8 +16,7 @@ gera.amostra <- function(size, ordem, seed){
   
   #testa tamanho da amostra
   if (size - as.integer(size) != 0){
-    warning("Tamanho de amostra será convertido para o \nmenor número inteiro mais próximo.",
-            call. = FALSE)
+    message("Tamanho de amostra será convertido para o \nmenor número inteiro mais próximo.")
   }
   #converte para realizar os calculos
   size <- as.integer(size)
@@ -41,9 +40,11 @@ gera.amostra <- function(size, ordem, seed){
   return(list(amostra = vec, ordem = ordem))
 }
 ## exemplos de amostras ----
-gera.amostra(15L, "parcial")
-gera.amostra(15.2, "aleatorio", seed = 1234)
-gera.amostra(10L, "cassildis")
+gera.amostra(15L, "parcial") #uso correto sem seed
+gera.amostra(15.2, "aleatorio", seed = 1234) #uso com decimal e com seed
+gera.amostra(15L, "aleatorio", seed = 1234) #demonstra que o vetor é igual se o seed é igual
+gera.amostra(15L, "aleatorio") #demonstra que o vetor é diferente sem seed fornecido
+gera.amostra(10L, "cassildis") #demonstra interrupcao da execucao da funcao
 
 # Metodos de ordenacao ----
 # tempo de execução - Sys.time
@@ -139,35 +140,53 @@ tamanhos <- c(500L, 1000L, 5000L, 10000L, 50000L)
 ordens_simples <- c("ordenado", "invertido")
 ordens_medias <- c("parcial", "aleatorio")
 
-## computa tabela de ordenacoes simples ----
-comps_simples <- data.frame()
+## computa tabela de ordenacoes simples se arquivo nao existe ----
+if(!file.exists("./dados gerados tp1/comps_simples.Rdata")){
 
-### loop de selecao ----
-for(i in tamanhos[1:5]){ #poderia ser otimizado para nao gerar amostras toda vez
-    for(j in ordens_simples){
-     amostra <- gera.amostra(i,j, seed = 12345)
-     comps_simples <- rbind(comps_simples, selecao(amostra))
-  }
-}
-### loop de insercao----
-### loop de quicksort----
-
-## computa tabela com multiplas iteracoes nos casos aleatorizados ----
-comps_iter <- data.frame()
-
-### loop de selecao ----
-for(k in 1:100){
-  print(paste("k = ", k))
+  comps_simples <- data.frame()
+  
+  ### loop de selecao ----
+    
   for(i in tamanhos[1:5]){ #poderia ser otimizado para nao gerar amostras toda vez
-    print(paste("i = ", i))
-    for(j in ordens_medias){
-      amostra <- gera.amostra(i,j, seed = 12345)
-      comps_iter <- rbind(comps_iter, selecao(amostra))
+      for(j in ordens_simples){
+       amostra <- gera.amostra(i,j, seed = 12345)
+       comps_simples <- rbind(comps_simples, selecao(amostra))
     }
   }
-}
+  ### loop de insercao----
+  # deve fazer rbind com comps_simples
+  
+  ### loop de quicksort----
+  # deve fazer rbind com comps_simples
+  
+  ### salva o arquivo, se nao existe ----
+  saveRDS(comps_simples, "./dados gerados tp1/comps_simples.Rdata")
 
-### loop de insercao ----
-###loop de quicksort ----
+} else {comps_simples <- readRDS("./dados gerados tp1/comps_simples.Rdata")}
+
+## computa tabela com multiplas iteracoes nos casos aleatorizados se nao existe ----
+if(!file.exists("./dados gerados tp1/comps_iter.Rdata")){
+
+  comps_iter <- data.frame()
+  
+  ### loop de selecao ----
+  for(k in 1:100){
+    print(paste("k = ", k))
+    for(i in tamanhos[1:5]){ #poderia ser otimizado para nao gerar amostras toda vez
+      print(paste("i = ", i))
+      for(j in ordens_medias){
+        amostra <- gera.amostra(i,j, seed = 12345)
+        comps_iter <- rbind(comps_iter, selecao(amostra))
+      }
+    }
+  }
+  
+  ### loop de insercao ----
+  ### loop de quicksort ----
+  
+  ### salva o arquivo, se nao existe ----
+  saveRDS(comps_iter, "./dados gerados tp1/comps_iter.Rdata")
+
+} else {comps_iter <- readRDS("./dados gerados tp1/comps_iter.Rdata")}
 
 ## calculo das médias dos casos aleatorizados ----
