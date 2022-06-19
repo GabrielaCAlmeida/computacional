@@ -43,17 +43,22 @@ gera.amostra(10L, "cassildis")
 # média de numero de movimentações dos elementos do vetor em 100 repetições
 
 ## Selecao ----
-selecao <- function(x){ 
-  comparacoes <- 0
-  movimentacoes <- 0
-  t1 <- Sys.time()
-  #x é um vetor qualquer de elementos.
-  #se x for APENAS um string atomico, cara caractere sera considerado
-  ## para ordenacao
+selecao <- function(vec){ 
+  
+  x <- vec
+  
   if (length(x) == 1){
     x <- as.character(x)
     x <- unlist(strsplit(tolower(x), split = "*"))
   }
+  
+  comparacoes <- 0
+  movimentacoes <- 0 #copias, reatribuicoes
+  t1 <- Sys.time()
+  #x é um vetor qualquer de elementos.
+  #se x for APENAS um string atomico, cara caractere sera considerado
+  ## para ordenacao
+
   #tamanho do vetor
   n <- length(x)
   #loop de ordenacao
@@ -62,25 +67,39 @@ selecao <- function(x){
     for(j in (i+1):n){ #para j do segundo ao ultimo
       if(x[j] < x[min]) {#compara x[j] ao x[i] (considerado minimo)
         min <- j #se x[j] for menor, o indice minimo deve ser j
-        comparacoes <- comparacoes+1 #aumenta o contador de comparacoes
-        } 
+      }
+      comparacoes <- comparacoes+1 #aumenta o contador de comparacoes
     }
-    temp <- x[min] #objeto temporario com o menor valor
+    temp <- x[min] #objeto temporario com o menor valor - COPIA
+    movimentacoes <- movimentacoes + 1
+    
+    #objetos originais para comparacao
+    xmin_antigo <- x[min]
+    xi_antigo <- x[i]
+    
+    #objetos novos apos reposicionamento - REPOSICIONAMENTOS (talvez)
     x[min] <- x[i] #antigo indice do minimo se torna o maior valor
     x[i] <- temp #antigo indice maior recebe valor minimo, 
                  ## armazenado na variavel temporaria
+    
+    #testa se houve reposicionamento
+    if(xmin_antigo != x[min]){movimentacoes <- movimentacoes + 1}
+    if(xi_antigo != x[i]){movimentacoes <- movimentacoes + 1}
   }
   t <- Sys.time()-t1
-  #retornar:
-  # x, o objeto ordenado
-  # t, tempo de execucao
+
   return(list(
-    objeto = x,
+    objeto_original = vec,
+    objeto_ordenado = x,
     tempo = t,
     comparacoes = comparacoes,
     movimentacoes = movimentacoes)
   )
 }
+
+### exemplo ----
+amostra <- gera.amostra(15L,"parcial")
+selecao(amostra)
 
 ## Insercao ----
 
