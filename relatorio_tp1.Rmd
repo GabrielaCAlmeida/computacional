@@ -1,0 +1,47 @@
+---
+title: "Relatório trabalho prático 1"
+author: 
+  - César A. Galvão 19/0011572
+  - Gabriela Carneiro 18/0120816
+  - Matheus Kilson 19/0093170
+date: "`r format(Sys.Date(), '%d de %B de %y')`"
+output: 
+  pdf_document:
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+\begin{center} 
+
+\textbf{Resumo} 
+
+\end{center}
+
+Nesta atividade foram implementadas em R três métodos de ordenação -- seleção, inserção e QuickSort -- e seus desempenhos foram medidos por meio de tempo de execução, número de comparações entre elementos do vetor e número de movimentações dos elementos do vetor. Os três métodos foram testados com tamanhos variados de amostras, variando o tamanho de 500 a 50.000, assim como vetores previamente organizados de quatro formas: ordenados, ordenados de maneira inversa, parcialmente aleatorizados (cerca de 10% dos elementos têm posições aleatórias) e completamente aleatorizados. As duas últimas formas foram executadas 100 vezes e as medidas de interesse são representadas por suas médias. Enquanto (INSERIR AQUI OBSERVAÇÃO), observou-se que (INSERIR OUTRA OBSERVAÇÃO). Conclui-se que (INSERIR CONCLUSAO).
+
+
+# Introdução
+
+- Nomear métodos de ordenação
+- Indicar as medidas teóricas de cada método
+- Dizer o que se espera individualmente e comparativamente
+- Dizer como foi feita a implementação (as funcoes, o que cada uma faz)
+- Dizer quais são as medidas realizadas e sob que condições as medidas são feitas
+- tamanhos de amostra
+- formas de ordenação: explicitar a forma como a aleatorizacao parcial é feita
+
+# Resultados
+
+Apresentar as tabelas de resumo feitas no final do código.
+
+# Conclusao
+
+Comparar o que se esperava pelas medidas teóricas com o que foi calculado. Corrobora ou não?
+
+# Anexo A {.unnumbered}
+
+CODIGO COMENTADO - CHUNK COM `EVAL = FALSE`
