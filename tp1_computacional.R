@@ -102,6 +102,7 @@ selecao <- function(amostra, .show_all = FALSE){
   
   if(.show_all == FALSE){
     return(data.frame(
+      metodo = "selecao",
       tamanho = size,
       ordenamento = amostra$ordem,
       # objeto_original = amostra,
@@ -112,6 +113,7 @@ selecao <- function(amostra, .show_all = FALSE){
     )
   } else {
     return(list(
+      metodo = "selecao",
       tamanho = size,
       ordenamento = amostra$ordem,
       objeto_original = amostra$amostra,
@@ -140,24 +142,26 @@ tamanhos <- c(500L, 1000L, 5000L, 10000L, 50000L)
 ordens_simples <- c("ordenado", "invertido")
 ordens_medias <- c("parcial", "aleatorio")
 
+
 ## computa tabela de ordenacoes simples se arquivo nao existe ----
+if(!dir.exists("./dados gerados tp1/")){
+  dir.create("./dados gerados tp1/")}
+
 if(!file.exists("./dados gerados tp1/comps_simples.Rdata")){
 
   comps_simples <- data.frame()
   
-  ### loop de selecao ----
+  ### loop de amostras nao aleatorizadas ----
     
   for(i in tamanhos[1:5]){ #poderia ser otimizado para nao gerar amostras toda vez
       for(j in ordens_simples){
        amostra <- gera.amostra(i,j, seed = 12345)
-       comps_simples <- rbind(comps_simples, selecao(amostra))
+       comps_simples <- rbind(comps_simples, selecao(amostra)
+                             #, insercao(amostra), quicksort(amostra) 
+                              )
     }
   }
-  ### loop de insercao----
-  # deve fazer rbind com comps_simples
-  
-  ### loop de quicksort----
-  # deve fazer rbind com comps_simples
+
   
   ### salva o arquivo, se nao existe ----
   saveRDS(comps_simples, "./dados gerados tp1/comps_simples.Rdata")
@@ -169,7 +173,7 @@ if(!file.exists("./dados gerados tp1/comps_iter.Rdata")){
 
   comps_iter <- data.frame()
   
-  ### loop de selecao ----
+  ### loop amostras aleatorizadas - TEM QUE REFAZER, TODOS COM AS MESMAS 100 AMOSTRAS ----
   for(k in 1:100){
     print(paste("k = ", k))
     for(i in tamanhos[1:5]){ #poderia ser otimizado para nao gerar amostras toda vez
@@ -177,12 +181,12 @@ if(!file.exists("./dados gerados tp1/comps_iter.Rdata")){
       for(j in ordens_medias){
         amostra <- gera.amostra(i,j, seed = 12345)
         comps_iter <- rbind(comps_iter, selecao(amostra))
+        #COMO NO ANTERIOR, BOTAR TODOS NO RBIND
       }
     }
   }
   
-  ### loop de insercao ----
-  ### loop de quicksort ----
+
   
   ### salva o arquivo, se nao existe ----
   saveRDS(comps_iter, "./dados gerados tp1/comps_iter.Rdata")
@@ -190,3 +194,6 @@ if(!file.exists("./dados gerados tp1/comps_iter.Rdata")){
 } else {comps_iter <- readRDS("./dados gerados tp1/comps_iter.Rdata")}
 
 ## calculo das médias dos casos aleatorizados ----
+
+
+# limpeza do ambiente, deixar apenas funcoes e objetos finais
