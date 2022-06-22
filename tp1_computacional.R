@@ -1,8 +1,8 @@
 # funcao geradora de amostras ----
-#funcao para facilitar teste de argumento ORDEM na funcao
-`%notin%` <- Negate(`%in%`)
-
 gera.amostra <- function(size, ordem, seed){
+  #funcao para facilitar teste de argumento ORDEM na funcao
+  `%notin%` <- Negate(`%in%`)
+  
   #opcoes de argumento
   opcoes <- c("ordenado", "invertido", "aleatorio", "parcial")
   #testa ordem da funcao
@@ -130,9 +130,96 @@ amostra <- gera.amostra(20, "parcial", seed = 1234)
 selecao(amostra)
 selecao(amostra, .show_all = T)
 
+
 ## Insercao ----
+#FALTA: MOVIMENTACOES, COMPARACOES, RETURNS
+
+insercao <- function(amostra, .show_all = FALSE){
+  x <- amostra$amostra
+  size <- length(amostra$amostra)
+  comparacoes <- 0
+  movimentacoes <- 0 #copias, reatribuicoes
+  t1 <- Sys.time()
+  
+  #tamanho do vetor
+  n <- length(x)
+  #loop de ordenacao
+  for(i in 2:n){
+    temp = x[i]
+    movimentacoes <- movimentacoes+1
+    j = i-1
+    while(x[j] > temp && j > 0){
+      comparacoes <- comparacoes+1
+      x[j+1] <- x[j]
+      movimentacoes <- movimentacoes+1
+      j <- j-1
+    }
+    x[j+1] <- temp
+    movimentacoes <- movimentacoes+1
+  }
+  
+  
+  t <- Sys.time()-t1
+  
+  if(.show_all == FALSE){
+    return(data.frame(
+      metodo = "insercao",
+      tamanho = size,
+      ordenamento = amostra$ordem,
+      # objeto_original = amostra,
+      # objeto_ordenado = x,
+      tempo = t,
+      comparacoes = comparacoes,
+      movimentacoes = movimentacoes)
+    )
+  } else {
+    return(list(
+      metodo = "insercao",
+      tamanho = size,
+      ordenamento = amostra$ordem,
+      objeto_original = amostra$amostra,
+      objeto_ordenado = x,
+      tempo = t,
+      comparacoes = comparacoes,
+      movimentacoes = movimentacoes)
+    )
+  }
+}
+
+### exemplo ----
+amostra <- gera.amostra(20, "parcial", seed = 1234)
+insercao(amostra)
+insercao(amostra, .show_all = T)
 
 ## QuickSort ----
+quick_sort<-function(x)
+{
+  if(length(x)<=1) return(x)
+  pivot<-x[1]
+  rest<-x[-1]
+  pivot_less<-quick_sort(rest[rest<pivot])
+  pivot_greater<-quick_sort(rest[rest>=pivot])
+  return(c(pivot_less,pivot,pivot_greater))
+}
+
+quick_sort2<-function(x, movimentacoes = 0, comparacoes = 0)
+{
+  if(length(x)<=1) return(x)
+  pivot<-x[as.integer(length(x)/2)]
+  rest<-x[-as.integer(length(x)/2)]
+  pivot_less<-quick_sort(rest[rest<pivot])
+  pivot_greater<-quick_sort(rest[rest>=pivot])
+  return(c(pivot_less,pivot,pivot_greater))
+}
+
+### exemplo
+amostra <- gera.amostra(20, "parcial", seed = 1234)
+quicksort(amostra)
+quicksort(amostra, .show_all = T)
+
+# Limpeza ----
+rm(list=setdiff(ls(), c("gera.amostra", "selecao", "insercao")))
+
 
 # Testes de comparação ----
 
@@ -157,7 +244,7 @@ if(!file.exists("./dados gerados tp1/comps_simples.Rdata")){
       for(j in ordens_simples){
        amostra <- gera.amostra(i,j, seed = 12345)
        comps_simples <- rbind(comps_simples, selecao(amostra)
-                             #, insercao(amostra), quicksort(amostra) 
+                             , insercao(amostra)#, quicksort(amostra) 
                               )
     }
   }
