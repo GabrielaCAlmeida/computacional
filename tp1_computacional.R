@@ -155,6 +155,7 @@ insercao <- function(amostra, .show_all = FALSE){
       movimentacoes <- movimentacoes+1
       j <- j-1
     }
+    comparacoes <- comparacoes+1
     #1 comparacao se x[j] > temp == FALSE
     x[j+1] <- temp
     movimentacoes <- movimentacoes+1
@@ -196,9 +197,6 @@ insercao(amostra, .show_all = T)
 ## QuickSort ----
 
 
-# CRIAR FUNCAO ENVOLTORIA PARA MARCAR TEMPO
-# E MONTAR O RESTO DO DATAFRAME
-
 quicksort_base <- function(vetor, esq = 1, dir = length(vetor), 
                       movimentacoes = 0, comparacoes = 0){
   
@@ -229,20 +227,20 @@ quicksort_base <- function(vetor, esq = 1, dir = length(vetor),
     #se o índice i for menor que o índice j
     #realiza movimentacoes
     #prossegue com os contadores
-    if(i < j){ 
+    if(i <= j){ 
       temp <- vetor[i] 
       vetor[i] <- vetor[j]
       vetor[j] <- temp
-      movimentacoes <- movimentacoes+3
+      if(i<j){movimentacoes <- movimentacoes+3}
       i <- i + 1 
       j <- j - 1
     } 
-    #se os indices forem iguais
-    #cruza os apontadores
-    if(i == j){ 
-      i <- i + 1 
-      #j <- j - 1
-    }
+    # #se os indices forem iguais
+    # #cruza os apontadores
+    # if(i == j){ 
+    #   i <- i + 1 
+    #   #j <- j - 1
+    # }
   }
   
   # prints pra auditoria de um digito que estava escapando do ordenamento
@@ -313,7 +311,7 @@ quick_completa(amostra, .show_all = T)
 # Limpeza ----
 rm(list=setdiff(ls(), c("gera.amostra", "selecao", "insercao", 
                         "quicksort_base", "quick_completa")))
-
+gc()
 
 # Testes de comparação ----
 
@@ -355,11 +353,11 @@ if(!file.exists("./dados gerados tp1/comps_iter.Rdata")){
   
   ### loop amostras aleatorizadas - TEM QUE REFAZER, TODOS COM AS MESMAS 100 AMOSTRAS ----
   for(k in 1:100){
-    print(paste("k = ", k))
+    #print(paste("k = ", k)) - para auditoria
     for(i in tamanhos[1:5]){ #poderia ser otimizado para nao gerar amostras toda vez
-      print(paste("i = ", i))
+      #print(paste("i = ", i)) - para auditoria
       for(j in ordens_medias){
-        amostra <- gera.amostra(i,j, seed = 12345)
+        amostra <- gera.amostra(i,j, seed = k)
         comps_iter <- rbind(comps_iter, selecao(amostra), 
                             insercao(amostra), quick_completa(amostra))
         #COMO NO ANTERIOR, BOTAR TODOS NO RBIND
@@ -375,6 +373,16 @@ if(!file.exists("./dados gerados tp1/comps_iter.Rdata")){
 } else {comps_iter <- readRDS("./dados gerados tp1/comps_iter.Rdata")}
 
 ## calculo das médias dos casos aleatorizados ----
+library(dplyr)
+medias <-comps_iter %>%
+  group_by(metodo, tamanho, ordenamento)%>%
+  summarise(across(tempo:movimentacoes, mean))
 
+saveRDS(medias, "./dados gerados tp1/medias_iter.Rdata")
 
 # limpeza do ambiente, deixar apenas funcoes e objetos finais
+
+rm(list=setdiff(ls(), c("gera.amostra", "selecao", "insercao", 
+                        "quicksort_base", "quick_completa",
+                        "comps_iter", "comps_simples", "medias")))
+gc()
