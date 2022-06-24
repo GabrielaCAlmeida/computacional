@@ -144,16 +144,18 @@ insercao <- function(amostra, .show_all = FALSE){
   #tamanho do vetor
   n <- length(x)
   #loop de ordenacao
-  for(i in 2:n){
-    temp = x[i]
+  for(i in 2:n){ # a partir de i = 2
+    temp = x[i] # selecione o i-esimo
     movimentacoes <- movimentacoes+1
     j = i-1
-    while(x[j] > temp && j > 0){
+    
+    while(x[j] > temp && j > 0){ #
       comparacoes <- comparacoes+1
       x[j+1] <- x[j]
       movimentacoes <- movimentacoes+1
       j <- j-1
     }
+    #1 comparacao se x[j] > temp == FALSE
     x[j+1] <- temp
     movimentacoes <- movimentacoes+1
   }
@@ -192,33 +194,125 @@ insercao(amostra)
 insercao(amostra, .show_all = T)
 
 ## QuickSort ----
-quick_sort<-function(x)
-{
-  if(length(x)<=1) return(x)
-  pivot<-x[1]
-  rest<-x[-1]
-  pivot_less<-quick_sort(rest[rest<pivot])
-  pivot_greater<-quick_sort(rest[rest>=pivot])
-  return(c(pivot_less,pivot,pivot_greater))
+
+
+# CRIAR FUNCAO ENVOLTORIA PARA MARCAR TEMPO
+# E MONTAR O RESTO DO DATAFRAME
+
+quicksort_base <- function(vetor, esq = 1, dir = length(vetor), 
+                      movimentacoes = 0, comparacoes = 0){
+  
+  pivot <- vetor[as.integer((esq+dir)/2)] # pega ponto médio como pivo
+  i <- esq
+  j <- dir
+  
+  while(i <= j){
+    #compara i com j no while(i <= j)
+    comparacoes <- comparacoes+1 
+    
+    # enquanto o pivo for maior que o numero à esquerda
+    # avanca com i até achar um numero maior que o pivot
+    # compara x[i] com pivot
+    while(vetor[i] < pivot){
+      i <- i+1 
+      comparacoes <- comparacoes+1 
+    }
+    
+    # enquanto o pivo for menor que o numero à direita
+    # retrocede com j até achar um numero menor que o pivot
+    # compara x[j] com pivot
+    while(vetor[j] > pivot){ 
+      j <- j-1 
+      comparacoes <- comparacoes+1 
+    }
+    
+    #se o índice i for menor que o índice j
+    #realiza movimentacoes
+    #prossegue com os contadores
+    if(i < j){ 
+      temp <- vetor[i] 
+      vetor[i] <- vetor[j]
+      vetor[j] <- temp
+      movimentacoes <- movimentacoes+3
+      i <- i + 1 
+      j <- j - 1
+    } 
+    #se os indices forem iguais
+    #cruza os apontadores
+    if(i == j){ 
+      i <- i + 1 
+      #j <- j - 1
+    }
+  }
+  
+  # prints pra auditoria de um digito que estava escapando do ordenamento
+  #print(vetor)
+  #print(glue::glue("i = {i}, j = {j}, pivot = {pivot}, es = {esq}, dir = {dir}"))
+  
+  #quicksort da esquerda
+  if(esq < j){
+    resultado <- quicksort_base(vetor, esq = esq, dir = j, 
+                           movimentacoes = movimentacoes, comparacoes = comparacoes)
+    vetor <- resultado$vetor
+    movimentacoes <- resultado$movimentacoes
+    comparacoes <- resultado$comparacoes
+  }
+  #quicksort da direita
+  if(i < dir){
+    resultado <- quicksort_base(vetor, esq = i, dir = dir, 
+                           movimentacoes = movimentacoes, comparacoes = comparacoes)
+    vetor <- resultado$vetor
+    movimentacoes <- resultado$movimentacoes
+    comparacoes <- resultado$comparacoes
+  }
+  return(list(
+    vetor = vetor,
+    movimentacoes = movimentacoes,
+    comparacoes = comparacoes
+  ))
 }
 
-quick_sort2<-function(x, movimentacoes = 0, comparacoes = 0)
-{
-  if(length(x)<=1) return(x)
-  pivot<-x[as.integer(length(x)/2)]
-  rest<-x[-as.integer(length(x)/2)]
-  pivot_less<-quick_sort(rest[rest<pivot])
-  pivot_greater<-quick_sort(rest[rest>=pivot])
-  return(c(pivot_less,pivot,pivot_greater))
+quick_completa <- function(amostra, .show_all = FALSE){
+  
+  vetor <- amostra$amostra
+  
+  t1 <- Sys.time()
+  resultados <- quicksort_base(vetor)
+  t <- Sys.time()-t1
+  
+  if(.show_all == FALSE){
+    return(data.frame(
+      metodo = "quicksort",
+      tamanho = length(amostra$amostra),
+      ordenamento = amostra$ordem,
+      # objeto_original = amostra$amostra,
+      # objeto_ordenado = resultados$vetor,
+      tempo = t,
+      comparacoes = resultados$comparacoes,
+      movimentacoes = resultados$movimentacoes)
+    )
+  } else {
+    return(list(
+      metodo = "quicksort",
+      tamanho = length(amostra$amostra),
+      ordenamento = amostra$ordem,
+      objeto_original = amostra$amostra,
+      objeto_ordenado = resultados$vetor,
+      tempo = t,
+      comparacoes = resultados$comparacoes,
+      movimentacoes = resultados$movimentacoes)
+    )
+  }
 }
 
 ### exemplo
 amostra <- gera.amostra(20, "parcial", seed = 1234)
-quicksort(amostra)
-quicksort(amostra, .show_all = T)
+quick_completa(amostra)
+quick_completa(amostra, .show_all = T)
 
 # Limpeza ----
-rm(list=setdiff(ls(), c("gera.amostra", "selecao", "insercao")))
+rm(list=setdiff(ls(), c("gera.amostra", "selecao", "insercao", 
+                        "quicksort_base", "quick_completa")))
 
 
 # Testes de comparação ----
@@ -243,9 +337,8 @@ if(!file.exists("./dados gerados tp1/comps_simples.Rdata")){
   for(i in tamanhos[1:5]){ #poderia ser otimizado para nao gerar amostras toda vez
       for(j in ordens_simples){
        amostra <- gera.amostra(i,j, seed = 12345)
-       comps_simples <- rbind(comps_simples, selecao(amostra)
-                             , insercao(amostra)#, quicksort(amostra) 
-                              )
+       comps_simples <- rbind(comps_simples, selecao(amostra), 
+                              insercao(amostra), quick_completa(amostra))
     }
   }
 
@@ -267,7 +360,8 @@ if(!file.exists("./dados gerados tp1/comps_iter.Rdata")){
       print(paste("i = ", i))
       for(j in ordens_medias){
         amostra <- gera.amostra(i,j, seed = 12345)
-        comps_iter <- rbind(comps_iter, selecao(amostra))
+        comps_iter <- rbind(comps_iter, selecao(amostra), 
+                            insercao(amostra), quick_completa(amostra))
         #COMO NO ANTERIOR, BOTAR TODOS NO RBIND
       }
     }
