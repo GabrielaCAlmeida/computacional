@@ -132,7 +132,7 @@ selecao(amostra, .show_all = T)
 
 
 ## Insercao ----
-#FALTA: MOVIMENTACOES, COMPARACOES, RETURNS
+
 
 insercao <- function(amostra, .show_all = FALSE){
   x <- amostra$amostra
@@ -145,13 +145,13 @@ insercao <- function(amostra, .show_all = FALSE){
   n <- length(x)
   #loop de ordenacao
   for(i in 2:n){ # a partir de i = 2
-    temp = x[i] # selecione o i-esimo
+    temp = x[i] # selecione o i-esimo como comparativo
     movimentacoes <- movimentacoes+1
-    j = i-1
+    j = i-1 #j comeca em 1
     
-    while(x[j] > temp && j > 0){ #
+    while(x[j] > temp && j > 0){  #enquanto j for maior que o comparativo
       comparacoes <- comparacoes+1
-      x[j+1] <- x[j]
+      x[j+1] <- x[j] #passe o j para frente
       movimentacoes <- movimentacoes+1
       j <- j-1
     }
@@ -386,3 +386,6 @@ rm(list=setdiff(ls(), c("gera.amostra", "selecao", "insercao",
                         "quicksort_base", "quick_completa",
                         "comps_iter", "comps_simples", "medias")))
 gc()
+
+
+  
