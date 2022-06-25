@@ -217,7 +217,9 @@ Comparar o que se esperava pelas medidas teóricas com o que foi calculado. Corr
 # Anexo A - tabela com dados de execução dos algoritmos  {.unnumbered}
 
 ```{r tabela-dados-exec, echo = FALSE}
- tabelas_conjuntas %>%
+names(tabelas_conjuntas) <- c('Método', 'Tamanho', 'Ordenamento', 'Tempo', 'Comparações', 'Movimentações')
+
+tabelas_conjuntas %>%
   knitr::kable(
     format = "latex",
     align = "l",
