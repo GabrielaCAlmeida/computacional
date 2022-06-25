@@ -1,0 +1,96 @@
+---
+title: "Relatório trabalho prático 1"
+author:
+- César A. Galvão 19/0011572
+- Gabriela Carneiro 18/0120816
+date: "`r format(Sys.Date(), '%d de %B de %y')`"
+output:
+  pdf_document:
+    number_sections: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+\begin{center} 
+
+\textbf{Resumo} 
+
+\end{center}
+
+Nesta atividade foram implementadas em R três métodos de ordenação -- seleção, inserção e QuickSort -- e seus desempenhos foram medidos por meio de tempo de execução, número de comparações entre elementos do vetor e número de movimentações dos elementos do vetor. Os três métodos foram testados com tamanhos variados de amostras, variando o tamanho de 500 a 50.000, assim como vetores previamente organizados de quatro formas: ordenados, ordenados de maneira inversa, parcialmente aleatorizados (cerca de 10% dos elementos têm posições aleatórias) e completamente aleatorizados. As duas últimas formas foram executadas 100 vezes e as medidas de interesse são representadas por suas médias. Enquanto (INSERIR AQUI OBSERVAÇÃO), observou-se que (INSERIR OUTRA OBSERVAÇÃO). Conclui-se que (INSERIR CONCLUSAO).^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
+
+
+# Introdução
+
+## Métodos de ordenação
+
+O ordenamento de dados tem papel crucial no campo das ciências da computação. Os vários tipos de algoritmos de ordenação diferem entre si em termos de eficiência, uso de memória, complexidade, dentre outros fatores, por isso, esses algoritmos tem sito extensamente analisados por meio da pesquisa ^[https://www.sciencedirect.com/science/article/pii/S2667096821000355]. Nesse contexto, cada algoritmo desenvolvido para ordenamento de dados tem seus benefícios e limitações, sendo que o desempenho deles pode ser otimizado de diversas maneiras. ^[https://www.sciencedirect.com/science/article/pii/S2667096821000355]
+
+Na ciência da computação, a eficiência entre algoritmos é comparada geralmente em termos do tempo de execução. Muitos dos algoritmos de ordenação têm complexidade linear ou quadrática. Destes muitos tem complexidade quadrática O($n^2$) como pior caso e complexidade linear como melhor caso, sendo que o desempenho dos algoritmos O($n^2$) tende a cair conforme a quantidade de dados aumenta. Ainda, alguns algoritmos tem a complexidade O(n.logn) tanto no pior caso quanto em seu melhor caso.^[https://www.sciencedirect.com/science/article/pii/S2667096821000355]
+
+### Ordenação por seleção 
+
+O método de ordenação por seleção percorre a sequencia de dados e "seleciona" cada elemento que não está em sua posição correta. Em seguida, ele o troca de lugar com o elemento que está na primeira posição. O algoritmo executa esse mesmo procedimento para o restante da lista de dados. 
+
+Estas operações quando executadas tem complexidade quadratica, sendo que a busca pelo menor elemento da operação custa $n - 1$ passos na primeira iteração. Posterimoente, a operação custa $n - 2$ na segunda operação e assim por diante. Dessa forma, o custo total é dado pela soma da progressão aritmética $1+2+3+ ... + (n-1)$ de razão $r = 1$, com $a_1 = 1$ e $a_n = (n-1)$. Dessa forma, o tempo de execução do algoritmo é:
+
+\begin{equation}
+  \frac{(1+(n-1)) * n}{2} = \frac{n^2}{2}
+\end{equation}
+
+
+### Ordenação por inserção 
+
+Esse tipo de método de ordenação "insere" cada elemento desordenado dos dados em sua posição correta. Ou seja, esse tipo de ordenação tem como rotina base a inserção ordenada, que basicamente compara o elemento que está sendo ordenado com os elementos anteriores a ele e só efetua uma movimentação quando tal elemento é maior que elemento imediatamente e sua esquerda ou quando ele ocupa a primeira posição da sequencia. As operaçãoes, assim como o método do ordenação por seleção, são de ordem quadratica, em seu pior caso. Em seu melhor caso, quando os elementos já estão ordenados, o custo total é de O($n$).
+
+Assim como no caso de ordenação mencionado anteriomente, o custo total é dado pela soma da progressão aritmética $1+2+3+ ... + (n-1)$ de razão $r = 1$, com $a_1 = 1$ e $a_n = (n-1)$. Dessa forma, o tempo de execução do algoritmo é:
+
+\begin{equation}
+  \frac{(1+(n-1)) * n}{2} = \frac{n^2}{2}
+\end{equation}
+
+### Quick Sort
+
+O Quicksort geralmente é implementado recursivamente. Um pivô aleatório é escolhido e todos os elementos são reorganizados em torno do pivô em ordem crescente mantendo-o como referência. A escolha do pivô determina a complexidade do quicksort sendo que em algumas versões, nos melhores casos, o algoritmo tem complexidade de O($nlogn$), podendo chegar até O(nlog logn). Porém, se o pivô for selecionado em uma das extremidades da sequencia, ele passa a ter complexidade de O($n^2$). 
+
+Escolher um pivô aleatorimente é um boa estratégia para diminuir significativamente a probabilidade de ocorrência do pior caso, já que, para o pior caso acontecer, o pivô escolhido deveria ser sempre o pior tendo uma probabilidade de:
+
+\begin{equation}
+  p = \frac{1}{n} * \frac{1}{(n-1)} * \frac{1}{n-2} ...
+\end{equation}
+
+### Comparação entre métodos de ordenação
+
+Comparando os diferentes tipos de estratégia de ordenação, é esperado que o método de ordenação por seleção efetue menos trocas do que o método de ordenação por inserção, pois há uma troca apenas por iteração, desse modo, o algoritmo efetua n trocas. Já o método de inserção efetua ao menos uma troca por iteração.
+
+Porém, este efetua menos comparações do que aquele, pois nem sempre o elemento a ser inserido de forma ordenada deve ir até o final. Isso só ocorre no pior dos casos, em que os elementos estão ordenado em ordem decrescente. O algoritmo de seleção precisa comparar todos os elementos restantes a cada iteração para determinar quem é o menor deles.
+
+Ambos os métodos citados acima estão na mesma classe de complexidade (O($n^2$)). No entanto, o método de inserção apresenta melhor desempenho do que o método de seleção na prática.
+
+Dentre os 3, o Quick Sort é o mais eficiente, tendo uma complexidade de O($nlogn$), exceto no seu pior cenário, quando atinge a mesma complexidade dos outros dois tipos avaliados. 
+
+# Métodos
+
+## Amostragem
+
+## Implementação do método de seleção 
+
+## Implementação do método de inserção 
+
+## Implementação do Quicksort
+
+# Resultados
+
+Apresentar as tabelas de resumo feitas no final do código.
+
+# Conclusao
+
+Comparar o que se esperava pelas medidas teóricas com o que foi calculado. Corrobora ou não?
+
+# Anexo A {.unnumbered}
+
+CODIGO COMENTADO - CHUNK COM `EVAL = FALSE`
+

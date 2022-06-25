@@ -326,7 +326,7 @@ ordens_medias <- c("parcial", "aleatorio")
 if(!dir.exists("./dados gerados tp1/")){
   dir.create("./dados gerados tp1/")}
 
-if(!file.exists("./dados gerados tp1/comps_simples.Rdata")){
+if(!file.exists("trabalho pratico 1/dados gerados tp1/comps_simples.Rdata")){
 
   comps_simples <- data.frame()
   
@@ -342,16 +342,16 @@ if(!file.exists("./dados gerados tp1/comps_simples.Rdata")){
 
   
   ### salva o arquivo, se nao existe ----
-  saveRDS(comps_simples, "./dados gerados tp1/comps_simples.Rdata")
+  saveRDS(comps_simples, "trabalho pratico 1/dados gerados tp1/comps_simples.Rdata")
 
-} else {comps_simples <- readRDS("./dados gerados tp1/comps_simples.Rdata")}
+} else {comps_simples <- readRDS("trabalho pratico 1/dados gerados tp1/comps_simples.Rdata")}
 
 ## computa tabela com multiplas iteracoes nos casos aleatorizados se nao existe ----
-if(!file.exists("./dados gerados tp1/comps_iter.Rdata")){
+if(!file.exists("trabalho pratico 1/dados gerados tp1/comps_iter.Rdata")){
 
   comps_iter <- data.frame()
   
-  ### loop amostras aleatorizadas - TEM QUE REFAZER, TODOS COM AS MESMAS 100 AMOSTRAS ----
+  ### loop amostras aleatorizadas
   for(k in 1:100){
     #print(paste("k = ", k)) - para auditoria
     for(i in tamanhos[1:5]){ #poderia ser otimizado para nao gerar amostras toda vez
@@ -368,9 +368,9 @@ if(!file.exists("./dados gerados tp1/comps_iter.Rdata")){
 
   
   ### salva o arquivo, se nao existe ----
-  saveRDS(comps_iter, "./dados gerados tp1/comps_iter.Rdata")
+  saveRDS(comps_iter, "trabalho pratico 1/dados gerados tp1/comps_iter.Rdata")
 
-} else {comps_iter <- readRDS("./dados gerados tp1/comps_iter.Rdata")}
+} else {comps_iter <- readRDS("trabalho pratico 1/dados gerados tp1/comps_iter.Rdata")}
 
 ## calculo das médias dos casos aleatorizados ----
 library(dplyr)
@@ -378,7 +378,7 @@ medias <-comps_iter %>%
   group_by(metodo, tamanho, ordenamento)%>%
   summarise(across(tempo:movimentacoes, mean))
 
-saveRDS(medias, "./dados gerados tp1/medias_iter.Rdata")
+saveRDS(medias, "trabalho pratico 1/dados gerados tp1/medias_iter.Rdata")
 
 # limpeza do ambiente, deixar apenas funcoes e objetos finais
 
