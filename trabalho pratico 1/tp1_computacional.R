@@ -190,7 +190,7 @@ insercao <- function(amostra, .show_all = FALSE){
 }
 
 ### exemplo ----
-amostra <- gera.amostra(20, "parcial", seed = 1234)
+amostra <- gera.amostra(20, "invertido", seed = 1234)
 insercao(amostra)
 insercao(amostra, .show_all = T)
 

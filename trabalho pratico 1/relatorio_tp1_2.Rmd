@@ -76,7 +76,7 @@ Escolher um pivô aleatorimente é um boa estratégia para diminuir significativ
   p = \frac{1}{n!}.
 \end{equation}
 
-### Comparação entre métodos de ordenação
+### Comparação entre métodos de ordenação {#sec144}
 
 Comparando os diferentes tipos de estratégia de ordenação, é esperado que o método de ordenação por seleção efetue menos trocas do que o método de ordenação por inserção, pois há uma troca apenas por iteração. Desse modo, o algoritmo efetua $n$ trocas. Já o método de inserção efetua ao menos uma troca por iteração.
 
@@ -84,7 +84,7 @@ Contudo, este efetua menos comparações do que o algoritmo de seleção, pois n
 
 Ambos os métodos citados acima estão na mesma classe de complexidade ($O(n^2)$). No entanto, o método de inserção apresenta melhor desempenho do que o método de seleção na prática.
 
-Dentre os três, o Quick Sort é o mais eficiente, tendo uma complexidade de $O(n \log n)$, exceto no seu pior cenário, quando atinge a mesma complexidade dos outros dois tipos avaliados. 
+Entre os três métodos, o Quick Sort é o mais eficiente. Tendo uma complexidade de $O(n \log n)$, exceto no seu pior cenário, o método atinge a mesma complexidade dos outros dois tipos avaliados. 
 
 # Método
 
@@ -146,10 +146,9 @@ tabelas_conjuntas <- bind_rows(
 
 ## Tempo de execução  
 
-A medida que o o número de elementos nas amostras crescem, o tempo de execução das ordenações também cresce, conforme esperado. 
-Quando as amostras são geradas com ordenação de elementos em ordem aleatória, é possível observar que para ordená-la os métodos de ordenação por inserção e QuickSort levam menos tempo que o método de seleção, fato que mostra que o metodo de seleção é mais oneroso que os outro dois. O mesmo poder ser observado quando as amostra está invertida, ordenada ou parcialmente ordenada. 
+Na medida em que o número de elementos nas amostras cresce, o tempo de execução das ordenações também cresce, conforme esperado. Quando as amostras são geradas com ordenação de elementos em ordem aleatória, é possível observar que para ordená-la os métodos de ordenação por inserção e QuickSort levam menos tempo que o método de seleção, fato que mostra que o metodo de seleção é mais oneroso que os outro dois. O mesmo pode ser observado quando as amostra está invertida, ordenada ou parcialmente ordenada. 
 
-Porém, de forma inesperada, para as amostras de tamando 50000, o método de seleçao levou mais tempo para ordenar as amostras que já estavam ordenadas do que as amostras que estavam completamente invertidas. Isso não é esperado, pois no caso das amostras invertidas tanto o método de seleção quanto o método se inserção tem seus piores cenários, tendo desempenho quadratico.
+Porém, de forma inesperada para as amostras de tamando 50.000, o método de seleção levou mais tempo para ordenar as amostras que já estavam ordenadas do que as amostras que estavam completamente invertidas. Isso não é esperado, pois no caso das amostras invertidas tanto o método de seleção quanto o método se inserção tem seus piores cenários, tendo desempenho quadrático.
 
 
 ```{r grafico-tempo, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Tempo de execução dos métodos desagregado por ordenamento original da amostra", out.width="75%"}
@@ -176,8 +175,7 @@ tabelas_conjuntas %>%
 
 ## Número de comparações  
 
-Conforme pode ser observado na figura 2, o número de comparações também tende a crescer conforme o número de elementos das amostras aumenta. 
-Ainda, para todos os tipos de amostra o método de seleção foi o que fez o maior número de comparações, principalmente para as amostras maiores de 10000 e 50000 elementos. Esse resultado já é esperado, conforme já citado no item 1.1.4 da introdução.
+Conforme pode ser observado na figura 2, o número de comparações também tende a crescer conforme o número de elementos das amostras aumenta. Ainda, para todos os tipos de amostra o método de seleção foi o que fez o maior número de comparações, principalmente para as amostras maiores de 10.000 e 50.000 elementos. Esse resultado já é esperado, conforme já citado no item 1.1.4 da introdução. Cabe apontar que, no caso do ordenamento Invertido, a linha correspondente ao método de Inserção está sobreposta àquela do método de Seleção.  
 
 ```{r grafico-comparacoes, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Quantidade de comparações dos métodos desagregado por ordenamento original da amostra", out.width="75%"}
 tabelas_conjuntas %>%
@@ -194,13 +192,14 @@ tabelas_conjuntas %>%
         panel.grid.minor = element_blank(),
         legend.position = "bottom")+
   facet_wrap(vars(ordenamento),nrow = 2, ncol = 2)
+
 ```
+
+\break
 
 ## Número de movimentações  
 
-De maneira análoga, o número de movimentações também deve crescer a medida que o número de elementos das amostras cresce. 
-A figura 3 mostra que o método de ordenação por inserção sempre faz o maior número de movimentações, conforme já citado anteriormente no item 1.1.4 da introdução, principalmente quando o as amostras estão invertidas, quando esse método tem complexidade quadratica. 
-Nas amostras ordenadas, não houveram movimentações o que já era esperado. Esse resuldado corrobora que as implementações da contagem das movimentações foram implementadas de forma correta no desenvolvimentos das funções dos três métodos de ordenação.
+De maneira análoga, o número de movimentações também deve crescer a medida que o número de elementos das amostras cresce. Na figura 3 é possível observar que o método de ordenação por inserção sempre faz o maior número de movimentações, conforme já citado anteriormente no item [1.1.4](#sec144) da introdução, principalmente quando as amostras estão invertidas, quando esse método tem complexidade quadrática. Nas amostras ordenadas, não houve movimentações o que já era esperado. Esse resuldado corrobora que as implementações da contagem das movimentações foram implementadas de forma correta no desenvolvimentos das funções dos três métodos de ordenação.  
 
 ```{r grafico-movimentacoes, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Quantidade de movimentações dos métodos desagregado por ordenamento original da amostra", out.width="75%"}
 tabelas_conjuntas %>%
@@ -450,7 +449,7 @@ insercao <- function(amostra, .show_all = FALSE){
 }
 
 ### exemplo ----
-amostra <- gera.amostra(20, "parcial", seed = 1234)
+amostra <- gera.amostra(20, "invertido", seed = 1234)
 insercao(amostra)
 insercao(amostra, .show_all = T)
 
