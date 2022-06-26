@@ -22,7 +22,6 @@ include-before:
 \renewcommand\section{\clearpage\oldsection}
 
 ```{r setup, include=FALSE}
-
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(kableExtra)
@@ -35,7 +34,7 @@ library(kableExtra)
 
 \end{center}
 
-Nesta atividade foram implementadas em R três métodos de ordenação -- seleção, inserção e QuickSort -- e seus desempenhos foram medidos por meio de tempo de execução, número de comparações entre elementos do vetor e número de movimentações dos elementos do vetor. Os três métodos foram testados com tamanhos variados de amostras, variando o tamanho de 500 a 50.000, assim como vetores previamente organizados de quatro formas: ordenados, ordenados de maneira inversa, parcialmente aleatorizados (cerca de 10% dos elementos têm posições aleatórias) e completamente aleatorizados. As duas últimas formas foram executadas 100 vezes e as medidas de interesse são representadas por suas médias. Enquanto (INSERIR AQUI OBSERVAÇÃO), observou-se que (INSERIR OUTRA OBSERVAÇÃO). Conclui-se que (INSERIR CONCLUSAO).^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
+Nesta atividade foram implementadas em R três métodos de ordenação -- seleção, inserção e Quick Sort -- e seus desempenhos foram medidos por meio de tempo de execução, número de comparações entre elementos do vetor e número de movimentações dos elementos do vetor. Os três métodos foram testados com tamanhos variados de amostras, variando o tamanho de 500 a 50.000, assim como vetores previamente organizados de quatro formas: ordenados, ordenados de maneira inversa, parcialmente aleatorizados (cerca de 10% dos elementos têm posições aleatórias) e completamente aleatorizados. As duas últimas formas foram executadas 100 vezes e as medidas de interesse são representadas por suas médias. Enquanto o método de seleção fez maior número de comparações, observou-se que o método de inserção fez maior número e movimentações. Conclui-se que o método de ordenação por Quick sort é o mais eficiente dos três que foram analisados.^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
 
 
 # Introdução
@@ -69,7 +68,7 @@ Assim como no caso de ordenação mencionado anteriomente, o custo total é dado
 
 ### Quick Sort
 
-O Quicksort geralmente é implementado recursivamente. Um pivô aleatório é escolhido e todos os elementos são reorganizados em torno do pivô em ordem crescente mantendo-o como referência. A escolha do pivô determina a complexidade do quicksort sendo que em algumas versões, nos melhores casos, o algoritmo tem complexidade de $O(n \log n)$, podendo chegar até $O(n \log \log n)$. No entanto, se o pivô for selecionado em uma das extremidades da sequencia, ele passa a ter complexidade de $O(n^2)$. 
+O Quick Sort geralmente é implementado recursivamente, como foi realizado neste relatório. Um pivô aleatório é escolhido e todos os elementos são reorganizados em torno do pivô em ordem crescente mantendo-o como referência. A escolha do pivô determina a complexidade do Quick Sort sendo que em algumas versões, nos melhores casos, o algoritmo tem complexidade de $O(n \log n)$. No entanto, se o pivô for selecionado em uma das extremidades da sequencia, ele passa a ter complexidade de $O(n^2)$. 
 
 Escolher um pivô aleatorimente é um boa estratégia para diminuir significativamente a probabilidade de ocorrência do pior caso, já que, para o pior caso acontecer, o pivô escolhido deveria ser sempre o pior tendo uma probabilidade de ocorrência
 
@@ -79,13 +78,11 @@ Escolher um pivô aleatorimente é um boa estratégia para diminuir significativ
 
 ### Comparação entre métodos de ordenação
 
-Comparando os diferentes tipos de estratégia de ordenação, é esperado que o método de ordenação por seleção efetue menos trocas do que o método de ordenação por inserção, pois há uma troca apenas por iteração. Desse modo, o algoritmo efetua $n$ trocas. Já o método de inserção efetua ao menos uma troca por iteração.
-
-Contudo, este efetua menos comparações do que o algoritmo de seleção, pois nem sempre o elemento a ser inserido de forma ordenada deve ir até o final do vetor. Isso só ocorre no pior caso, isto é, quando os elementos estão ordenado em ordem decrescente. O algoritmo de seleção precisa comparar todos os elementos restantes a cada iteração para determinar qual é o menor deles.
+Comparando os diferentes tipos de estratégia de ordenação, é esperado que o método de ordenação por seleção efetue menos trocas do que o método de ordenação por inserção, pois há uma troca apenas por iteração. Desse modo, o algoritmo efetua $n$ trocas. Já o método de inserção efetua ao menos uma troca por iteração. Contudo, este efetua menos comparações do que o algoritmo de seleção, pois nem sempre o elemento a ser inserido de forma ordenada deve ir até o final do vetor. Isso só ocorre no pior caso, isto é, quando os elementos estão ordenado em ordem decrescente. O algoritmo de seleção precisa comparar todos os elementos restantes a cada iteração para determinar qual é o menor deles.
 
 Ambos os métodos citados acima estão na mesma classe de complexidade ($O(n^2)$). No entanto, o método de inserção apresenta melhor desempenho do que o método de seleção na prática.
 
-Dentre os três, o Quick Sort é o mais eficiente, tendo uma complexidade de $O(n \log n)$, exceto no seu pior cenário, quando atinge a mesma complexidade dos outros dois tipos avaliados. 
+Entre os três métodos, o Quick Sort é teoricamente o mais eficiente, tendo uma complexidade de $O(n \log n)$. Em seu pior cenário, o método atinge a mesma complexidade dos outros dois tipos avaliados. 
 
 # Método
 
@@ -93,7 +90,7 @@ Dentre os três, o Quick Sort é o mais eficiente, tendo uma complexidade de $O(
 
 Os testes de desempenho realizados para cada um dos algoritmos de ordenação tomaram em conta duas dimensões: tamanho de amostra e ordenação prévia do vetor a ser ordenado. 
 
-Para poder comparar os métodos, três medidas foram feitas para todos os tamanhos de amostra: contagem da quantidade de movimentações, quantidade de comparações entre elementos e tempo de execução. Vetores ordenados nas duas direções tiveram testes realizados apenas uma vez, enquanto aqueles que possuíam algum elemento aleatório foram realizados cem vezes e os valores considerados para comparação são as médias dessas crm realizações de teste.
+Para poder comparar os métodos, três medidas foram feitas para todos os tamanhos de amostra: contagem da quantidade de movimentações, quantidade de comparações entre elementos e tempo de execução. Vetores ordenados nas duas direções tiveram testes realizados apenas uma vez, enquanto aqueles que possuíam algum elemento aleatório foram realizados cem vezes e os valores considerados para comparação são as médias dessas cem realizações de teste.
 
 ## Amostragem  
 
@@ -109,9 +106,9 @@ O método seleção foi implementado na função `selecao()`, que recebe a lista
 
 ## Implementação do método de inserção  
 
-O método seleção foi implementado na função `insercao()`, que recebe a lista da função de amostragem como argumento. Considerando $i = 2, 3, ..., n$ como o iterador primário e $j = 1, 2, ..., n-1$, tem-se $x_i, x_j$ e $x_{\text{temp}}$. Na primeira iteração, defini-se $x_{\text{temp}} = x_i$. Enquanto $x_j$ e $j>0$, redefinse-se $x_{j+1} = x_j$ e $j = j-1$ até que uma das condições não sejam mais satisfeitas. Neste momento, reatribui-se $x_{j+1} = x_{\text{temp}}$ e itera-se sobre o próximo valor de $i$.
+O método seleção foi implementado na função `insercao()`, que recebe a lista da função de amostragem como argumento. Considerando $i = 2, 3, ..., n$ como o iterador primário e $j = 1, 2, ..., n-1$, tem-se $x_i, x_j$ e $x_{\text{temp}}$. Na primeira iteração, defini-se $x_{\text{temp}} = x_i$. Enquanto $x_j$ e $j>0$, redefine-se $x_{j+1} = x_j$ e $j = j-1$ até que uma das condições não sejam mais satisfeitas. Neste momento, reatribui-se $x_{j+1} = x_{\text{temp}}$ e itera-se sobre o próximo valor de $i$.
 
-## Implementação do Quicksort  
+## Implementação do Quick Sort  
 
 Este algoritmo foi implementado em dois níveis: a funcao `quick_base()`, objeto principal de análise, aplica o algoritmo enquanto `quick_completa()` permite o retorno das medidas de interesse. A ordenação inicia com a seleção de um pivô, aqui selecionado como a posição mediana do comprimento do vetor, e redistribui os elementos do vetor. Enquanto os elementos menores que o pivô são passados para a esquerda dele, os maiores são passados para a direita. Em seguida, a função recursivamente opera sobre os braços do vetor até que todo ele esteja ordenado.
 
@@ -147,6 +144,9 @@ tabelas_conjuntas <- bind_rows(
 
 ## Tempo de execução  
 
+Na medida em que o número de elementos nas amostras cresce, o tempo de execução das ordenações também cresce, conforme esperado. Quando as amostras são geradas com ordenação de elementos em ordem aleatória, é possível observar que para ordená-la os métodos de ordenação por inserção e Quick Sort levam menos tempo que o método de seleção, fato que mostra que o metodo de seleção é mais oneroso que os outro dois. O mesmo pode ser observado quando as amostra está invertida, ordenada ou parcialmente ordenada. 
+
+Porém, de forma inesperada para as amostras de tamando 50.000, o método de seleção levou mais tempo para ordenar as amostras que já estavam ordenadas do que as amostras que estavam completamente invertidas. Isso não é esperado, pois no caso das amostras invertidas tanto o método de seleção quanto o método se inserção tem seus piores cenários, tendo desempenho quadrático.
 
 
 ```{r grafico-tempo, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Tempo de execução dos métodos desagregado por ordenamento original da amostra", out.width="75%"}
@@ -170,7 +170,10 @@ tabelas_conjuntas %>%
   facet_wrap(vars(ordenamento),nrow = 2, ncol = 2)
 ```
 
+
 ## Número de comparações  
+
+Conforme pode ser observado na figura 2, o número de comparações também tende a crescer conforme o número de elementos das amostras aumenta. Ainda, para todos os tipos de amostra o método de seleção foi o que fez o maior número de comparações, principalmente para as amostras maiores de 10.000 e 50.000 elementos. Esse resultado já é esperado, conforme já citado no item [1.1.4](#sec144) da introdução. Cabe apontar que, no caso do ordenamento Invertido, a linha correspondente ao método de Inserção está sobreposta àquela do método de Seleção.  
 
 ```{r grafico-comparacoes, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Quantidade de comparações dos métodos desagregado por ordenamento original da amostra", out.width="75%"}
 tabelas_conjuntas %>%
@@ -187,9 +190,14 @@ tabelas_conjuntas %>%
         panel.grid.minor = element_blank(),
         legend.position = "bottom")+
   facet_wrap(vars(ordenamento),nrow = 2, ncol = 2)
+
 ```
 
+\break
+
 ## Número de movimentações  
+
+De maneira análoga, o número de movimentações também deve crescer a medida que o número de elementos das amostras cresce. Na figura 3 é possível observar que o método de ordenação por inserção sempre faz o maior número de movimentações, conforme já citado anteriormente no item 1.1.4 da introdução, principalmente quando as amostras estão invertidas, quando esse método tem complexidade quadrática. Nas amostras ordenadas, não houve movimentações o que já era esperado. Esse resuldado corrobora que as implementações da contagem das movimentações foram implementadas de forma correta no desenvolvimentos das funções dos três métodos de ordenação.  
 
 ```{r grafico-movimentacoes, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Quantidade de movimentações dos métodos desagregado por ordenamento original da amostra", out.width="75%"}
 tabelas_conjuntas %>%
@@ -211,7 +219,9 @@ tabelas_conjuntas %>%
 
 # Conclusao
 
-Comparar o que se esperava pelas medidas teóricas com o que foi calculado. Corrobora ou não?
+Por meio das análises feitas é possível notar que o número de elementos na amostra afeta o tempo de execução da ordenação, assim como a complexidade da amostra, i.e. se ela está invertida, ordenada ou em alguma ordem aleatória. O tempo de execução das amostras invertidas foi inesperadamente menor que o tempo de execução das amostras já ordenadas, mas não foi possível identificar o motivo deste resultado. Ademais, essas diferenças no tempo de execução só foram percebidas para amostras maiores.  
+
+Para o número de comparacões e de movimentações, os algoritmos tiveram os resultados esperados, com o método de seleção fazendo o maior número de comparações que o método de inserção e este fazendo mais movimentações que aquele. Por fim, o Quick Sort foi o mais eficiente dos métodos de ornenação. 
 
 
 # Anexo A - tabela com dados de execução dos algoritmos  {.unnumbered}
@@ -222,7 +232,7 @@ names(tabelas_conjuntas) <- c('Método', 'Tamanho', 'Ordenamento', 'Tempo', 'Com
 tabelas_conjuntas %>%
   knitr::kable(
     format = "latex",
-    align = "l",
+    align = "lrccrr",
     booktabs = TRUE,
     longtable = TRUE,
     linesep = "",
@@ -244,8 +254,8 @@ O código a seguir está estruturado da seguinte forma:
 2. Métodos de ordenamento;  
   2.1. Definição da função de seleção;  
   2.2. Definição da função de inserção;  
-  2.3. Definição da função de quicksort;  
-    2.3.1. Definição da função quicksort base;
+  2.3. Definição da função de Quick Sort;  
+    2.3.1. Definição da função Quick Sort base;  
     2.3.2. Definição da função envoltória para realizar a medição de tempo e completar os demais outputs necessários;
 3. Testes de comparação  
   3.1. Testes de comparação para amostras em ordem direta ou inversa;  
@@ -439,7 +449,7 @@ insercao <- function(amostra, .show_all = FALSE){
 }
 
 ### exemplo ----
-amostra <- gera.amostra(20, "parcial", seed = 1234)
+amostra <- gera.amostra(20, "invertido", seed = 1234)
 insercao(amostra)
 insercao(amostra, .show_all = T)
 
