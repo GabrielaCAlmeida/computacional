@@ -232,7 +232,7 @@ names(tabelas_conjuntas) <- c('Método', 'Tamanho', 'Ordenamento', 'Tempo', 'Com
 tabelas_conjuntas %>%
   knitr::kable(
     format = "latex",
-    align = "l",
+    align = "lrccrr",
     booktabs = TRUE,
     longtable = TRUE,
     linesep = "",
