@@ -34,7 +34,7 @@ library(kableExtra)
 
 \end{center}
 
-Nesta atividade foram implementadas em R três métodos de ordenação -- seleção, inserção e QuickSort -- e seus desempenhos foram medidos por meio de tempo de execução, número de comparações entre elementos do vetor e número de movimentações dos elementos do vetor. Os três métodos foram testados com tamanhos variados de amostras, variando o tamanho de 500 a 50.000, assim como vetores previamente organizados de quatro formas: ordenados, ordenados de maneira inversa, parcialmente aleatorizados (cerca de 10% dos elementos têm posições aleatórias) e completamente aleatorizados. As duas últimas formas foram executadas 100 vezes e as medidas de interesse são representadas por suas médias. Enquanto (INSERIR AQUI OBSERVAÇÃO), observou-se que (INSERIR OUTRA OBSERVAÇÃO). Conclui-se que (INSERIR CONCLUSAO).^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
+Nesta atividade foram implementadas em R três métodos de ordenação -- seleção, inserção e QuickSort -- e seus desempenhos foram medidos por meio de tempo de execução, número de comparações entre elementos do vetor e número de movimentações dos elementos do vetor. Os três métodos foram testados com tamanhos variados de amostras, variando o tamanho de 500 a 50.000, assim como vetores previamente organizados de quatro formas: ordenados, ordenados de maneira inversa, parcialmente aleatorizados (cerca de 10% dos elementos têm posições aleatórias) e completamente aleatorizados. As duas últimas formas foram executadas 100 vezes e as medidas de interesse são representadas por suas médias. Enquanto o método de seleção fez maior número de comparações, observou-se que o mé´todo de inserção fez maior número e movimentações. Conclui-se que o método de ordenação por Quick sort é o mais eficiente dos três que foram analisados.^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
 
 
 # Introdução
@@ -175,7 +175,7 @@ tabelas_conjuntas %>%
 
 ## Número de comparações  
 
-Conforme pode ser observado na figura 2, o número de comparações também tende a crescer conforme o número de elementos das amostras aumenta. Ainda, para todos os tipos de amostra o método de seleção foi o que fez o maior número de comparações, principalmente para as amostras maiores de 10.000 e 50.000 elementos. Esse resultado já é esperado, conforme já citado no item 1.1.4 da introdução. Cabe apontar que, no caso do ordenamento Invertido, a linha correspondente ao método de Inserção está sobreposta àquela do método de Seleção.  
+Conforme pode ser observado na figura 2, o número de comparações também tende a crescer conforme o número de elementos das amostras aumenta. Ainda, para todos os tipos de amostra o método de seleção foi o que fez o maior número de comparações, principalmente para as amostras maiores de 10.000 e 50.000 elementos. Esse resultado já é esperado, conforme já citado no item [1.1.4](#sec144) da introdução. Cabe apontar que, no caso do ordenamento Invertido, a linha correspondente ao método de Inserção está sobreposta àquela do método de Seleção.  
 
 ```{r grafico-comparacoes, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Quantidade de comparações dos métodos desagregado por ordenamento original da amostra", out.width="75%"}
 tabelas_conjuntas %>%
@@ -221,7 +221,9 @@ tabelas_conjuntas %>%
 
 # Conclusao
 
-Comparar o que se esperava pelas medidas teóricas com o que foi calculado. Corrobora ou não?
+Por meio das análises feitas é possível notar que o número de elementos na amostra afeta o tempo de execução da ordenação, bem como a complexidade da amostra, se ela está invertida, ordenada ou em ordem aleatória. Inesperadamente o tempo de execução das amostras invertidas foi menor que o tempo de execução das amostras já ordenadas, mas não foi possível identificar o motivo deste resultado. Ademaai, essas diferenças no tempo de execução só foram percebidas para amostras maiores.
+Para o número de comparacões e de movimentações, os algoritmos tiveram os resultados esperados, com o método de seleção fazendo o maior número de comparações que o método de inserção e este fazendo mais movimentações que aquele. 
+Por fim, o Quick Sort foi o mais eficiente dos métodos de ornenação. 
 
 
 # Anexo A - tabela com dados de execução dos algoritmos  {.unnumbered}
