@@ -1,0 +1,132 @@
+---
+title: "Relatório trabalho prático 2"
+author:
+- César A. Galvão 19/0011572
+- Gabriela Carneiro 18/0120816
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output:
+  pdf_document: 
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    keep_tex: yes
+latex_engine: pdflatex
+header-includes:
+  \usepackage{helvet}
+  \renewcommand\familydefault{\sfdefault}
+include-before:
+- '`\newpage{}`{=latex}'
+---
+
+\let\oldsection\section
+\renewcommand\section{\clearpage\oldsection}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+```
+
+
+\begin{center} 
+
+\textbf{Resumo} 
+
+\end{center}
+
+Nesta atividade foram implementadas em R três métodos de ordenação -- seleção, inserção e Quick Sort -- e seus desempenhos foram medidos por meio de tempo de execução, número de comparações entre elementos do vetor e número de movimentações dos elementos do vetor. Os três métodos foram testados com tamanhos variados de amostras, variando o tamanho de 500 a 50.000, assim como vetores previamente organizados de quatro formas: ordenados, ordenados de maneira inversa, parcialmente aleatorizados (cerca de 10% dos elementos têm posições aleatórias) e completamente aleatorizados. As duas últimas formas foram executadas 100 vezes e as medidas de interesse são representadas por suas médias. Enquanto o método de seleção fez maior número de comparações, observou-se que o método de inserção fez maior número e movimentações. Conclui-se que o método de ordenação por Quick sort é o mais eficiente dos três que foram analisados.^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
+
+
+
+gerador congruencial: sistema de arquivo x relogio
+
+
+# Introdução
+
+O que são v.a.
+Como numeros aleatórios são gerados
+números pseudoaleatórios
+Utilidades de numeros aleatórios
+
+# Método
+
+Incluir a função de probabilidade/densidade e o algoritmo de forma genérica
+
+## Geração de variável aleatória uniforme  
+
+```{r uniforme-congruencial, echo = FALSE}
+
+uniforme <- function(n, seed){
+  
+  x <- c()
+  
+  a <- 16807
+  m <- 2^31 -1
+  
+  # se tem o arquivo com seed, pega o seed k do arquivo
+  # Se nao tiver arquivo, gera o arquivo e escreve o seed
+  # seed começa com o relogio
+  # Os que extrapolarem inserir no arquivo
+  
+  if (file.exists("./trabalho pratico 2/seeds.csv")){
+    y <- read.csv("./trabalho pratico 2/seeds.csv")[,2]
+  } else {
+    y <- as.numeric(Sys.time())
+  }
+  
+  for (i in 1:n){
+    y <- (a*y)%%m
+    x[i] <- y/m
+  }
+  
+  #guardar o ultimo y num arquivo
+  write.csv(y, "./trabalho pratico 2/seeds.csv")
+  
+  return(x)
+}
+
+```
+
+
+## Geração de variável aleatória Poisson  
+
+## Geração de variãvel aleatória exponencial  
+
+## Geração de variável aleatória Normal  
+
+tabelas variando de 0 a 3.99, com passos de 0.01
+
+### Método polar  
+
+### Método da rejeição  
+
+### F.D.A. integração de Monte Carlo  
+
+### F.D.A. estimada pelo método polar  
+
+### F.D.A. estimada pelo método da rejeição  
+
+# Resultados  
+
+Teste das gerações numeros aleatorios:
+- histograma x densidade teorica
+- teste de aderência
+
+
+# Conclusao
+
+
+
+
+# Anexo A - código comentado {.unnumbered}
+
+O código a seguir está estruturado da seguinte forma:
+
+1. Estrutura
+
+
+```{r codigo-comentado, eval = FALSE}
+
+```
+
+
