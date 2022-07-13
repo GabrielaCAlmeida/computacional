@@ -56,7 +56,7 @@ Incluir a função de probabilidade/densidade e o algoritmo de forma genérica
 
 ```{r uniforme-congruencial, echo = FALSE}
 
-uniforme <- function(n, seed){
+uniforme <- function(n){
   
   x <- c()
   
@@ -85,14 +85,75 @@ uniforme <- function(n, seed){
   return(x)
 }
 
+
 ```
 
 
 ## Geração de variável aleatória Poisson  
 
+```{r poisson, echo = FALSE}
+
+# acumulada_poisson <- function(lambda){
+#   p <- exp(-lambda)
+#   acum <- p
+#   for(i in 1:lambda){
+#     p <- (p*lambda)/i
+#     acum <- acum+p
+#   }
+#   return(acum)
+# }
+
+# INSERIR POSSIBILIDADE DE AUMENTAR O TAMANHO DA AMOSTRA.
+poisson <- function(lambda){
+  
+  if(!is.integer(lambda)){
+    message("Usando a parte inteira do lambda fornecido.")
+    lambda <- as.integer(lambda)
+  }
+  
+  #tamanho da amostra vai mudar aqui?
+  p <- exp(-lambda)
+  U <- uniforme(1)
+  f <- p
+  
+  i <- 0
+  
+  # testa se o número está na média
+    while (U >= f){
+      p <- (p*lambda)/(i+1)
+      f <- f+p
+      i <- i+1
+    }
+    return(i)
+  # se maior, seguir i = i+1
+  # se menor, o contrário
+}
+
+```
+
+
 ## Geração de variãvel aleatória exponencial  
 
+```{r exponencial, echo = FALSE}
+
+geraexp <- function(n, lambda){
+  u <- uniforme(n)
+  
+  saida <- -log(u)/lambda
+  
+  return(saida)
+}
+
+```
+
+
 ## Geração de variável aleatória Normal  
+
+```{r normal-padrao, echo = FALSE}
+
+
+
+```
 
 tabelas variando de 0 a 3.99, com passos de 0.01
 
