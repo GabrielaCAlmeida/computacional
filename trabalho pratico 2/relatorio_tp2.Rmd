@@ -25,6 +25,7 @@ include-before:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(kableExtra)
+library(broom)
 ```
 
 
@@ -34,25 +35,40 @@ library(kableExtra)
 
 \end{center}
 
-Nesta atividade foram implementadas em R três métodos de ordenação -- seleção, inserção e Quick Sort -- e seus desempenhos foram medidos por meio de tempo de execução, número de comparações entre elementos do vetor e número de movimentações dos elementos do vetor. Os três métodos foram testados com tamanhos variados de amostras, variando o tamanho de 500 a 50.000, assim como vetores previamente organizados de quatro formas: ordenados, ordenados de maneira inversa, parcialmente aleatorizados (cerca de 10% dos elementos têm posições aleatórias) e completamente aleatorizados. As duas últimas formas foram executadas 100 vezes e as medidas de interesse são representadas por suas médias. Enquanto o método de seleção fez maior número de comparações, observou-se que o método de inserção fez maior número e movimentações. Conclui-se que o método de ordenação por Quick sort é o mais eficiente dos três que foram analisados.^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
-
-
-
-gerador congruencial: sistema de arquivo x relogio
+Nesta atividade foram implementadas em R métodos para geração de variáveis aleatórias. Primeiramente foi criado um algoritmo para geração de 200.000 números pseudo-aleatórios uniformemente distribuídos entre (0, 1) pelo método congruencial linear. Este algoritmo foi então utilizado para gerar variáveis aleatórias para diferentes distribuições de probabilidade. A partir dos números pseudo-aleatórios, foram geradas 200.000 variáveis aleatórias de Poisson e 200.000 variáveis aleatórias em distribuição exponencial, pelo método da transformação inversa. Para gerar as 200.000 variáveis aleatórias em distribuição Normal foram utilizados dois métodos: o método da rejeição e método polar. Todas as variáveis geradas pelos métodos foram analisadas por meio de histogramas e teste de aderência. Todos os testes confirmaram que as variáveis geradas seguem as suas distribuições de referência. Por fim, foram geradas tabelas de probabilidade para a distribuição normal pelos métodos de Integração Monte Carlo, polar e da rejeição. Por meio das simulações feitas, pode-se concluir que os métodos de geração das variáveis aleatórias são eficientes e que dos métodos de geração utilizados para a construção das tabelas de probabilidade, o polar é o menos eficiente.^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
 
 
 # Introdução
 
-O que são v.a.
-Como numeros aleatórios são gerados
-números pseudoaleatórios
-Utilidades de numeros aleatórios
+Um número aleatório é um número gerado por meio de um processo cujo resultado é probabilístico e, consequentemente, não pode ser reproduzido de forma determinística. Um número aleatório pode ser gerado por meio de experimentação, como em lançamentos de um dado, contagens de ocorrências de raios gama, usando dígitos de pi, entre outros. No entanto, esses métodos requerem grande esforço e tempo para serem utilizados.    
+
+Dessa forma, como alternativa, existem algoritmos que implementam métodos para gerar números pseudo aleatórios. Um gerador de números pseudo aleatórios é um algoritmo que cria sequências de números cujas propriedades se assemelham às propriedades de números aleatórios, mas que não podem ser classificados como aleatórios, pois as sequencias são determinadas por um valor inicial, uma semente.  
+
+Dentre os métodos de geração de números pseudo aleatórios existe o gerador linear congruencial. O gerador linear terá como output uma distribuição uniforme. Depois disso, teoremas de estatística e probabilidade serão utilizados para gerar outras variáveis aleatórias correspondentes a outras distribuições, com base no gerador aleatório.  
+
+O gerador é definido pela relação de recorrência
+
+\begin{align}
+  X_{n+1} = \left( aX_n + c \right) \, \mod m 
+\end{align}
+
+em que $a$ e $m$ são inteiros positivos e $\mod$ é o operador para obtenção do resto da divisão.
+
+A variável $X$ retorna a sequência de números pseudo-aleatórios. Se $c = 0$, o gerador é chamado de gerador congruencial multiplicativo. Se $c \neq 0$, o gerador congruencial é chamado de gerador congruencial misto.  
+
+Para gerar números aleatórios, um gerador linear congruencial será desenvolvido. Esse gerador irá inicialmente ser utilizado para geração de variáveis aleatórias uniformemente distribuídas no intervalo $(0,1)$. A partir dessa função, serão geradas variáveis aleatórias nas distribuições de Poisson, exponencial, e normal padrão.
 
 # Método
 
-Incluir a função de probabilidade/densidade e o algoritmo de forma genérica
+## Variável aleatória uniforme  
 
-## Geração de variável aleatória uniforme  
+A geração da variável aleatória uniforme segue o seguinte algoritmo:
+
+1. As constantes $a$ e $m$ são definidas. Aqui, foram utilizados $a = 16.807$ e $m = 2^{31}-1$;
+2. Uma semente aleatória é obtida utilizando o relógio do sistema pela função `Sys.time()`;
+3. A semente é redefinida $y_{i+1} = (a \cdot y_i) \mod m$;
+4. O número pertencente a $U(0,1)$ é gerado $x_i = y_{i+1}/m$.
+
 
 ```{r uniforme-congruencial, echo = FALSE}
 
@@ -68,8 +84,8 @@ uniforme <- function(n){
   # seed começa com o relogio
   # Os que extrapolarem inserir no arquivo
   
-  if (file.exists("./trabalho pratico 2/seeds.csv")){
-    y <- read.csv("./trabalho pratico 2/seeds.csv")[,2]
+  if (file.exists("../trabalho pratico 2/seeds.Rdata")){
+    y <- readRDS("../trabalho pratico 2/seeds.Rdata")
   } else {
     y <- as.numeric(Sys.time())
   }
@@ -80,7 +96,7 @@ uniforme <- function(n){
   }
   
   #guardar o ultimo y num arquivo
-  write.csv(y, "./trabalho pratico 2/seeds.csv")
+  saveRDS(y, "../trabalho pratico 2/seeds.Rdata")
   
   return(x)
 }
@@ -89,21 +105,14 @@ uniforme <- function(n){
 ```
 
 
-## Geração de variável aleatória Poisson  
+## Variável aleatória Poisson  
+
+O algoritmo gera uma variável aleatória que segue a distribuição Poisson com média $\lambda$. Primeiramente ele gera um número aleatório uniformemente distribuído $U$ e verifica  $U < e^{-\lambda} = p_0$. Se for menor, o algoritmo assume $X = 0$. Caso contrário, ele itera o laço e verifica novamente novamente a condição, mas agora para a proposição $U < p_0 + p_1$. Se o valor for menor, o algoritmo atribui $X = 1$.  
+
+O algoritmo implementado verifica sucessivamente se o valor da Poisson é zero, em seguida verifica se o valor é 1, então 2 e assim por diante. Dessa forma, o número de comparações necessários será uma unidade maior que o valor da Poisson (1 + $\lambda$). Para valores pequenos de $\lambda$ o programa é eficiente, mas quando $\lambda$ assume valores muito grandes esse algoritmo não é o mais otimizado. O ideal é escolher valores mais próximos de lambda para iniciar a verificação do laço. A implementação escolhida foi a primeira, não otimizada.  
 
 ```{r poisson, echo = FALSE}
 
-# acumulada_poisson <- function(lambda){
-#   p <- exp(-lambda)
-#   acum <- p
-#   for(i in 1:lambda){
-#     p <- (p*lambda)/i
-#     acum <- acum+p
-#   }
-#   return(acum)
-# }
-
-# INSERIR POSSIBILIDADE DE AUMENTAR O TAMANHO DA AMOSTRA.
 poisson <- function(lambda){
   
   if(!is.integer(lambda)){
@@ -111,7 +120,6 @@ poisson <- function(lambda){
     lambda <- as.integer(lambda)
   }
   
-  #tamanho da amostra vai mudar aqui?
   p <- exp(-lambda)
   U <- uniforme(1)
   f <- p
@@ -125,14 +133,37 @@ poisson <- function(lambda){
       i <- i+1
     }
     return(i)
-  # se maior, seguir i = i+1
-  # se menor, o contrário
 }
 
 ```
 
 
-## Geração de variãvel aleatória exponencial  
+## Variável aleatória exponencial  
+
+Para gerar variáveis na distribuição exponencial, o método implementado foi o da transformação inversa.  
+
+Supondo que $X$ é uma variável aleatória com distribuição exponencial de $\lambda = 1$, sua função de distribuição pode ser expressa por
+
+\begin{align}
+  F(x) = 1 - e^{-x}
+\end{align}
+
+Se, $x = F^{-1}(u)$, então,
+
+\begin{align}
+  u = F(x) = 1 - e^{-x} \longrightarrow 1 - u = e^{-x}
+\end{align}
+  
+Aplicando o logaritmo, tem-se $x = - log(1 - u)$. Dessa forma, podemos gerar $X$ por meio de um número aleatório distribuído uniformemente e definindo $X = F^{-1}(U) = - \log(1 - U)$.  
+
+Uma pequena economia de tempo pode ser obtida observando que $1 - U$ também é uniforme em $(0, 1)$ e assim $-\log(1 - U)$ tem a mesma distribuição que $-\log U$. Ou seja, o logaritmo negativo de um número aleatório é distribuído exponencialmente com $\lambda = 1$.  
+
+Além disso, observa-se que se $X$ é exponencial com média 1, então, para qualquer constante $c$, $cX$ é exponencial com média $c$. Portanto, uma variável aleatória exponencial $X$ com parâmetro $\lambda$ (média $1/\lambda$) pode ser gerada por meio de um número aleatório $U$ e definindo:
+
+\begin{align}
+  X = \frac{-1}{\lambda} \cdot \log U
+\end{align}  
+
 
 ```{r exponencial, echo = FALSE}
 
@@ -145,49 +176,882 @@ geraexp <- function(n, lambda){
 }
 
 ```
+  
+  
+\newpage  
+
+  
+
+## Variável aleatória Normal  
 
 
-## Geração de variável aleatória Normal  
 
 ```{r normal-padrao, echo = FALSE}
 
+geranormal <- function(metodo){
+  if (metodo == "rejeicao"){
+    y <- geraexp(n = 1, lambda = 1)
+    u <- uniforme(1)
+    while(u > exp(-(y-1)^2)/2){
+      u <- uniforme(1)
+      y <- geraexp(n = 1, lambda = 1)
+    }
+    modZ <- abs(y)
+    
+    if(uniforme(1) <= 0.5){
+      Z <- modZ
+    } else {
+      Z <- -modZ
+    }
+    return(Z)
+  }
+  
+  if(metodo == "polar"){
+    v1 <- (2*uniforme(1)-1)
+    v2 <- (2*uniforme(1)-1)
+    u <- v1^2 + v2^2
+    while (u > 1){
+      v1 <- (2*uniforme(1)-1)
+      v2 <- (2*uniforme(1)-1)
+      u <- v1^2 + v2^2
+    }
+    x <- sqrt(-2*log(u)/u)*v1
+    y <- sqrt(-2*log(u)/u)*v2
+    return(list(x = x, y = y))
+  }
+}
 
 
 ```
 
-tabelas variando de 0 a 3.99, com passos de 0.01
+### Método polar 
 
-### Método polar  
+O método polar segue a abordagem abaixo para gerar um par de normais padrão independentes:
+
+1. Gerar números pseudo aleatórios uniformente distribuídos, $U_1$ e $U_2$;
+2. Gerar $V_1 = 2 U_1 - 1, \, \, V_2 = 2  U_2 - 1, \,\, S = V_1^2 + V_2^2$;
+3. Se $S > 1$, retornar ao passo 1;
+4. Retornar as variáveis independentes com distribuição normal padrão.
+
+\begin{align}
+  X = \sqrt{\frac{-2 \log S}{S}}V_1, \quad Y = \sqrt{\frac{-2 \log S}{S}}V_2
+\end{align}
 
 ### Método da rejeição  
 
-### F.D.A. integração de Monte Carlo  
+O método da rejeição gera valores de uma distribuição $X$ com função de densidade $f(x)$ a partir de uma distribuição de partida $Y$ com densidade de probabilidade $g(x)$. A ideia é que se pode gerar um valor de $X$ por meio de $Y$ aceitando ou não o valor de $Y$ com probabilidade $\frac{f(y)}{c \, g(y)}$. As comparações são repetidas $Y$ até que um valor seja aceito. Especificamente, seja $c$ uma constante tal que $f(y)/g(y) \leq c$, para todo $y$.
+Dessa forma, a técnica a seguir gera uma variável aleatória com densidade f:
 
-### F.D.A. estimada pelo método polar  
+1. Gerar $Y$ tendo densidade $g$;
+2. Gerar um número pseudo-aleatório $U$;
+3. Se $U \leq \frac{f(y)}{c\, g(y)}$, assumir $X = Y$. Caso contrário, retornar para passo 1.
 
-### F.D.A. estimada pelo método da rejeição  
+Com base nisso, pode-se afirmar que a variável aleatória gerada pelo método de rejeição tem densidade $f$ e que o número de iterações do algoritmo que são necessárias é um número que segue uma distribuição geométrica com média $c$.
+
+O histograma mostra que as variáveis aleatórias geradas pelo método aparentemente têm uma tendencia normal, apesar de apresentar uma queda em torno do zero. Assim como as distribuições anteriores, o fato de o gerador do número pseudo-aleatório uniforme não ter se comportado como o esperado nas extremidades pode ter afetado a geração das variáveis aleatórias normalmente distribuídas. 
+
 
 # Resultados  
 
-Teste das gerações numeros aleatorios:
-- histograma x densidade teorica
-- teste de aderência
+A seguir são expostas duas comparações para avaliação da qualidade de cada um dos algoritmos utilizados: a primeira é gráfica e expõe histogramas das distribuições geradas e a linha correspondente à distribuição teórica. A segunda é a realização de testes de aderência qui-quadrado, os quais foram realizados comparando os quartis das distribuições empíricas com as distribuições hipotéticas.
+
+Para os testes de aderência, as hipóteses utilizadas são as mesmas em todos os casos:
+
+\begin{align}
+  \begin{cases}
+    H_0: \text{não existe diferença significativa entre os valores observados e os esperados}; \\
+    H_a: \text{existe diferença significativa entre os valores observados e os esperados};
+  \end{cases}
+\end{align}
+
+Além disso, todas as amostras têm tamanho $n = 200.000$.
+
+```{r amostras, echo = FALSE}
+
+if(!file.exists("../trabalho pratico 2/amostra_uniforme.Rdata")){
+  # uniforme
+  am_uni <- data.frame(amostra = uniforme(200000))
+  
+  # poisson lambda = 1
+  am_poisson <- c()
+  for (i in 1:200000){
+    am_poisson[i] <- poisson(1L)
+  }
+  am_poisson <- data.frame(amostra = am_poisson)
+  
+  # exponencial lambda 1
+  am_exp <- data.frame(amostra = geraexp(200000, 1))
+  
+  # normal rejeição
+  am_normrej <- c()
+  for (i in 1:200000){
+    am_normrej[i] <- geranormal("rejeicao")
+  }
+  am_normrej <- data.frame(amostra = am_normrej)
+  
+  # normal polar
+  x <- c()
+  y <- c()
+  for (i in 1:200000){
+    x[i] <- geranormal("polar")$x
+    y[i] <- geranormal("polar")$y
+  }
+  
+  am_normpolar <- data.frame(x = x, y = y)
+  rm(x,y,i)
+  
+  saveRDS(am_uni, "../trabalho pratico 2/amostra_uniforme.Rdata")
+  saveRDS(am_poisson, "../trabalho pratico 2/amostra_poisson.Rdata")
+  saveRDS(am_exp, "../trabalho pratico 2/amostra_exponencial.Rdata")
+  saveRDS(am_normrej, "../trabalho pratico 2/amostra_normal_rejeicao.Rdata")
+  saveRDS(am_normpolar, "../trabalho pratico 2/amostra_normal_polar.Rdata")
+} else {
+  am_uni <- readRDS("../trabalho pratico 2/amostra_uniforme.Rdata")
+  am_poisson <- readRDS("../trabalho pratico 2/amostra_poisson.Rdata")
+  am_exp <- readRDS("../trabalho pratico 2/amostra_exponencial.Rdata")
+  am_normrej <- readRDS("../trabalho pratico 2/amostra_normal_rejeicao.Rdata")
+  am_normpolar <- readRDS("../trabalho pratico 2/amostra_normal_polar.Rdata")
+}
+```
+
+## Uniforme
+
+A amostra gerada para a distribuição uniforme se aproxima graficamente de sua função densidade teórica. Exceções podem ser observadas nos valores extremos da amostra e os motivos para isso, pelo menos graficamente, podem ser dois:
+
+1. De fato o algoritmo utilizado gera precariamente valores nas extremidades da distribuição; ou  
+2. O histograma gerado utiliza valores acima e abaixo dos centros das barras para projetar a altura das barras. Como valores abaixo de 0 e acima de 1 não existem, suas barras são mais curtas.  
+
+ 
+```{r resultados-unif, echo = FALSE, fig.align='center', out.width="70%", fig.cap="Histograma da amostra de v.a. uniforme com linha da f.d.p. uniforme", message = FALSE}
+
+ggplot(am_uni, aes(amostra))+
+  geom_histogram(aes(y = ..density..),color = 'white')+
+  stat_function(fun = dunif, color = 'red', args = list(min = 0, max = 1), size = 0.7)+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank()) 
+
+```
+
+```{r aderencia-unif, echo = FALSE}
+
+q1 <- sum(am_uni$amostra < .25)
+q2 <- sum(am_uni$amostra  >= .25 & am_uni$amostra < .5)
+q3 <- sum(am_uni$amostra  >= .5 & am_uni$amostra < .75)
+q4 <- sum(am_uni$amostra  >= .75 & am_uni$amostra <= 1)
+
+quartis <- c(q1,q2, q3, q4)/2000
+
+pvalor <- chisq.test(quartis, p = c(.25, .25, .25, .25))$p.value
+
+```
+Ao realizar o teste de aderência, obtém-se p-valor igual a `r round(pvalor,2)`, corroborando a maior chance de o tópico 2 ser o motivo para as barras mais curtas nas extremidades. O teste indica portanto que, utilizando a distribuição dos quartis da amostra, não seria possível diferenciá-la de uma variável aleatória com distribuição uniforme teórica.
 
 
-# Conclusao
 
+## Poisson
+
+O gráfico gerado para a v.a. Poisson suscita as mesmas dúvidas quanto à altura das barras. Nota-se que as barras estão abaixo dos pontos teóricos enquanto estão também deslocados em relação aos centros das barras.
+
+```{r resultados-pois, echo = FALSE, fig.align='center', out.width="70%", fig.cap="Histograma da amostra de v.a. Poisson com linha da f.p. Poisson", message = FALSE, warning = FALSE}
+
+x.values <- seq(0, 10, 1)
+y2 <- dpois(x.values, 1)
+df2 <- data.frame(x.values, y2)
+
+ggplot(df2, aes(x=x.values, y=y2))+
+  geom_histogram(data = am_poisson, aes(x = amostra, y = ..density..),color = 'white', bins = 10)+
+  geom_point(stat="identity", width = 0.5, color = "red")+
+  geom_line(color = "red")+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0), limits = c(0, .4))+
+  scale_x_continuous(breaks = c(0:10), expand = c(0, 0.2))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank()) 
+```
+
+```{r aderencia-pois, echo = FALSE}
+
+q1 <- sum(am_poisson$amostra <= qpois(.25, lambda = 1))
+q2 <- sum(am_poisson$amostra  > qpois(.25, lambda = 1) & am_poisson$amostra <= qpois(.5, lambda = 1))
+q3 <- sum(am_poisson$amostra  > qpois(.5, lambda = 1) & am_poisson$amostra <= qpois(.75, lambda = 1))
+q4 <- sum(am_poisson$amostra  > qpois(.75, lambda = 1))
+
+quartis <- c(q1,q2, q3, q4)/2000
+
+p <- c(dpois(0, lambda = 1),dpois(1, lambda = 1), dpois(2, lambda = 1))
+p[4] <- 1-sum(p)
+
+pvalor <- chisq.test(quartis, p = p)$p.value
+```
+O teste de aderência para a distribuição indica p-valor muito próximo de 1, o que sugere novamente uma dificuldade de composição do gráfico e a impossibilidade de diferenciar a distribuição da amostra da distribuição teórica.  
+
+\pagebreak
+
+## Exponencial
+
+A amostra gerada para a distribuição exponencial também parece estar próxima da distribuição teórica, a menos da barra inicial correspondente a valores próximos a zero.
+
+```{r resultados-exp, echo = FALSE, fig.align='center', out.width="70%", fig.cap="Histograma da amostra de v.a. exponencial com linha da f.d.p. exponencial", message = FALSE}
+
+ggplot(am_exp, aes(amostra))+
+  geom_histogram(aes(y = ..density..),color = 'white')+
+  stat_function(fun = dexp, color = 'red', args = list(1))+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank()) 
+```
+
+```{r aderencia-exp, echo = FALSE}
+
+q1 <- sum(am_exp$amostra <= qexp(.25, rate = 1))
+q2 <- sum(am_exp$amostra  > qexp(.25, rate = 1) & am_exp$amostra <= qexp(.5, rate = 1))
+q3 <- sum(am_exp$amostra  > qexp(.5, rate = 1) & am_exp$amostra <= qexp(.75, rate = 1))
+q4 <- sum(am_exp$amostra  > qexp(.75, rate = 1))
+
+quartis <- c(q1,q2, q3, q4)/2000
+
+pvalor <- chisq.test(quartis, p = c(.25, .25, .25, .25))$p.value
+
+```
+Novamente o teste de aderência é realizado com p-valor `r round(pvalor,2)`, sugerindo a impossibilidade de diferenciação da distribuição da amostra em relação à distribuição teórica.   
+
+
+\newpage
+
+
+## Normal
+
+O histograma mostra que as variáveis aleatórias geradas pelo método aparentemente têm uma tendencia normal, apesar de apresentar uma queda em torno do zero. Assim como as distribuições anteriores, o fato de o gerador do número pseudo-aleatório uniforme não ter se comportado como o esperado nas extremidades pode ter afetado a geração das variáveis aleatórias normalmente distribuídas. 
+
+```{r resultados-norm-rej, echo = FALSE, fig.align='center', out.width="70%", fig.cap="Histograma da amostra de v.a. normal, método rejeição, com linha da f.d.p. normal", message = FALSE}
+
+ggplot(am_normrej, aes(amostra))+
+  geom_histogram(aes(y = ..density..),color = 'white')+
+  stat_function(fun = dnorm, color = 'red', args = list(mean = 0, sd = 1))+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0), limits = c(0, .42))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank()) 
+
+```
+
+```{r aderencia-norm-rej, echo = FALSE}
+
+q1 <- sum(am_normrej$amostra <= qnorm(.25))
+q2 <- sum(am_normrej$amostra  > qnorm(.25) & am_normrej$amostra <= qnorm(.5))
+q3 <- sum(am_normrej$amostra  > qnorm(.5) & am_normrej$amostra <= qnorm(.75))
+q4 <- sum(am_normrej$amostra  > qnorm(.75))
+
+quartis <- c(q1, q2, q3, q4)/2000
+
+pvalor <- chisq.test(quartis, p = c(.25, .25, .25, .25))$p.value
+
+```
+
+\pagebreak
+
+Conforme histograma a seguir, tanto X quanto Y gerados pelo método polar seguem distribuição normal com médias centradas em zero. 
+
+```{r resultados-norm-pol, echo = FALSE, fig.align='center', out.width="70%", fig.cap="Histograma da amostra de v.a. normal, método polar, com linha da f.d.p. normal", message = FALSE}
+
+polar_long <- am_normpolar %>%
+  pivot_longer(cols = everything(), names_to = 'eixo', values_to = 'values')
+
+ggplot(polar_long, aes(values))+
+  geom_histogram(aes(y = ..density..),color = 'white')+
+  stat_function(fun = dnorm, color = 'red', args = list(mean = 0, sd = 1))+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0), limits = c(0, .42))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())+
+  facet_wrap(vars(eixo),ncol = 2)
+
+```
+
+```{r aderencia-norm-polar, echo = FALSE}
+
+q1 <- sum(am_normpolar$x <= qnorm(.25))
+q2 <- sum(am_normpolar$x  > qnorm(.25) & am_normpolar$x <= qnorm(.5))
+q3 <- sum(am_normpolar$x  > qnorm(.5) & am_normpolar$x <= qnorm(.75))
+q4 <- sum(am_normpolar$x  > qnorm(.75))
+
+quartis <- c(q1, q2, q3, q4)/2000
+
+pvalor <- chisq.test(quartis, p = c(.25, .25, .25, .25))$p.value
+
+```
+
+# Tabelas Normal estimadas
+
+As estimações a seguir consideram a probabilidade acumulada de $(-\infty, b]$. É esperado que os valores variem de 0.5 a 1, no entanto as aproximações realizadas pelos métodos de Integração de Monte Carlo e os demais utilizados para geração de amostras normais estão suscetíveis a erros aleatórios. Observa-se nas tabelas a seguir esses erros de estimação quando se atinge, antes do valor máximo dos quantis disponíveis, $p=1$ ou $p < 1$.
+
+## Tabela Integração Monte Carlo
+
+```{r, integra-monte-carlo, echo = FALSE}
+set.seed(1234)
+y <- runif(10000)
+
+acumulada_normal <- function(b, n=10000){
+  h <- (1/sqrt(2*pi))*(exp((-(y*(b))^2)/2)*(b))
+  return(mean(h))
+}
+
+intervalos <- seq(0, 3.99, by = 0.01)
+
+montecarlo <- sapply(intervalos, acumulada_normal)+.5
+
+linhas <- seq(0.0,3.9,by=0.1)
+colunas <- seq(0.0,0.09,by=0.01)
+
+
+z <- matrix(montecarlo, ncol=10, byrow=TRUE, dimnames = list(linhas,colunas))
+
+z %>%
+  knitr::kable(
+    format = "latex",
+    align = "c",
+    booktabs = TRUE,
+    longtable = TRUE,
+    linesep = "",
+    digits = 4
+    ) %>%
+  kableExtra::kable_styling(
+      position = "left",
+      latex_options = c("striped", "repeat_header"),
+      stripe_color = "gray!15"
+    )
+
+```
+
+\newpage
+
+## Tabela estimada pelo método polar
+
+```{r tabela-polar, echo = FALSE}
+
+size <- length(am_normpolar$x[am_normpolar$x>0])
+
+estim_polar <- sort(am_normpolar$x[am_normpolar$x>0])
+
+intervalos <- seq(0, 3.99, by = 0.01)
+polar <- c()
+
+for(i in 1:length(intervalos)){
+  polar[i] <- length(estim_polar[estim_polar>0 & estim_polar<= intervalos[i]])/(2*size)
+}
+
+linhas <- seq(0.0,3.9,by=0.1)
+colunas <- seq(0.0,0.09,by=0.01)
+
+polar <- polar+.5
+
+z <- matrix(polar, ncol=10, byrow=TRUE, dimnames = list(linhas,colunas))
+
+z %>%
+  knitr::kable(
+    format = "latex",
+    align = "c",
+    booktabs = TRUE,
+    longtable = TRUE,
+    linesep = "",
+    digits = 4
+    ) %>%
+  kableExtra::kable_styling(
+      position = "left",
+      latex_options = c("striped", "repeat_header"),
+      stripe_color = "gray!15"
+    )
+
+```
+
+\newpage
+
+## Tabela estimada pelo método da rejeição
+
+```{r tabela-rej, echo = FALSE}
+
+size <- length(am_normrej$amostra[am_normrej$amostra>0])
+
+estim_rej <- sort(am_normrej$amostra[am_normrej$amostra>0])
+
+intervalos <- seq(0, 3.99, by = 0.01)
+
+rej <- c()
+
+for(i in 1:length(intervalos)){
+  rej[i] <- length(estim_rej[estim_rej>0 & estim_rej<= intervalos[i]])/(2*size)
+}
+
+rej <- rej+.5
+
+linhas <- seq(0.0,3.9,by=0.1)
+colunas <- seq(0.0,0.09,by=0.01)
+
+z <- matrix(rej, ncol=10, byrow=TRUE, dimnames = list(linhas,colunas))
+
+z %>%
+  knitr::kable(
+    format = "latex",
+    align = "c",
+    booktabs = TRUE,
+    longtable = TRUE,
+    linesep = "",
+    digits = 4
+    ) %>%
+  kableExtra::kable_styling(
+      position = "left",
+      latex_options = c("striped", "repeat_header"),
+      stripe_color = "gray!15"
+    )
+```
+
+# Erros de estimação
+
+A seguir são expostos gráficos com os erros de estimação da distribuição normal. Eles foram calculados da seguinte forma: $\varepsilon = \hat{z} - z$, onde $z$ é o valor obtido para um determinado quantil utilizando `pnorm(quantil, 0, 1)`.
+
+No método de Monte Carlo é possível observar que erros parecem ocorrer em maior magnitude, especificamente subestimados, em um quantil próximo de 2. Para o método Polar, quantis maiores parecem ter menos erro de estimação enquanto quantis abaixo de 3 parecem estar suscetíveis a um ruído aleatório. Por último, o método da rejeição é o que exibe erros de maior magnitude com comportamento aparentemente sinoidal -- erros parecem diminuir no caso assintótico.
+
+```{r erros-estimacao, echo = FALSE}
+
+erros <- data.frame(
+  rej, polar, montecarlo,
+  normal = NA
+)
+
+intervalos <- seq(0, 3.99, by = 0.01)
+
+for(i in 1:length(intervalos)){
+  erros$normal[i] <- pnorm(intervalos[i])
+}
+
+erros$erro_rej <- (erros$rej - erros$normal)
+erros$erro_polar <- (erros$polar - erros$normal)
+erros$erro_montecarlo <- (erros$montecarlo - erros$normal)
+
+erros <- erros %>% 
+  select(starts_with("erro")) %>%
+  pivot_longer(cols = everything(),names_to = "tipo", values_to = "erro") %>%
+  mutate(quantil = rep(intervalos, each = 3),
+         tipo = case_when(
+           tipo == "erro_rej" ~ "Rejeição",
+           tipo == "erro_polar" ~ "Polar",
+           tipo == "erro_montecarlo" ~ "Monte Carlo"
+         ))
+
+ggplot(erros, aes(x = quantil, y = erro))+
+  geom_point(size = .5)+
+  theme_bw() +
+  labs(x = "Quantil", y = "Erro")+
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        #panel.border = element_blank(),
+        axis.line = element_line(colour = "black")#,
+        #panel.grid = element_blank()
+        )+
+  facet_wrap(vars(tipo), nrow = 1)
+
+```
 
 
 
 # Anexo A - código comentado {.unnumbered}
 
-O código a seguir está estruturado da seguinte forma:
-
-1. Estrutura
-
 
 ```{r codigo-comentado, eval = FALSE}
+# VA UNIFORME
+uniforme <- function(n){
+  
+  x <- c()
+  
+  a <- 16807
+  m <- 2^31 -1
+  
+  # se tem o arquivo com seed, pega o seed k do arquivo
+  # Se nao tiver arquivo, gera o arquivo e escreve o seed
+  # seed começa com o relogio
+  # Os que extrapolarem inserir no arquivo
+  
+  if (file.exists("../trabalho pratico 2/seeds.Rdata")){
+    y <- readRDS("../trabalho pratico 2/seeds.Rdata")
+  } else {
+    y <- as.numeric(Sys.time())
+  }
+  
+  for (i in 1:n){
+    y <- (a*y)%%m
+    x[i] <- y/m
+  }
+  
+  #guardar o ultimo y num arquivo
+  saveRDS(y, "../trabalho pratico 2/seeds.Rdata")
+  
+  return(x)
+}
 
+# VA POISSON
+poisson <- function(lambda){
+  
+  if(!is.integer(lambda)){
+    message("Usando a parte inteira do lambda fornecido.")
+    lambda <- as.integer(lambda)
+  }
+  
+  p <- exp(-lambda)
+  U <- uniforme(1)
+  f <- p
+  
+  i <- 0
+  
+  # testa se o número está na média
+    while (U >= f){
+      p <- (p*lambda)/(i+1)
+      f <- f+p
+      i <- i+1
+    }
+    return(i)
+}
+
+# VA EXPONENCIAL
+geraexp <- function(n, lambda){
+  u <- uniforme(n)
+  
+  saida <- -log(u)/lambda
+  
+  return(saida)
+}
+
+# VA NORMAL
+geranormal <- function(metodo){
+  if (metodo == "rejeicao"){
+    y <- geraexp(n = 1, lambda = 1)
+    u <- uniforme(1)
+    while(u > exp(-(y-1)^2)/2){
+      u <- uniforme(1)
+      y <- geraexp(n = 1, lambda = 1)
+    }
+    modZ <- abs(y)
+    
+    if(uniforme(1) <= 0.5){
+      Z <- modZ
+    } else {
+      Z <- -modZ
+    }
+    return(Z)
+  }
+  
+  if(metodo == "polar"){
+    v1 <- (2*uniforme(1)-1)
+    v2 <- (2*uniforme(1)-1)
+    u <- v1^2 + v2^2
+    while (u > 1){
+      v1 <- (2*uniforme(1)-1)
+      v2 <- (2*uniforme(1)-1)
+      u <- v1^2 + v2^2
+    }
+    x <- sqrt(-2*log(u)/u)*v1
+    y <- sqrt(-2*log(u)/u)*v2
+    return(list(x = x, y = y))
+  }
+}
+
+# GERACAO DE AMOSTRAS
+if(!file.exists("../trabalho pratico 2/amostra_uniforme.Rdata")){
+  # uniforme
+  am_uni <- data.frame(amostra = uniforme(200000))
+  
+  # poisson lambda = 1
+  am_poisson <- c()
+  for (i in 1:200000){
+    am_poisson[i] <- poisson(1L)
+  }
+  am_poisson <- data.frame(amostra = am_poisson)
+  
+  # exponencial lambda 1
+  am_exp <- data.frame(amostra = geraexp(200000, 1))
+  
+  # normal rejeição
+  am_normrej <- c()
+  for (i in 1:200000){
+    am_normrej[i] <- geranormal("rejeicao")
+  }
+  am_normrej <- data.frame(amostra = am_normrej)
+  
+  # normal polar
+  x <- c()
+  y <- c()
+  for (i in 1:200000){
+    x[i] <- geranormal("polar")$x
+    y[i] <- geranormal("polar")$y
+  }
+  
+  am_normpolar <- data.frame(x = x, y = y)
+  rm(x,y,i)
+  
+  saveRDS(am_uni, "../trabalho pratico 2/amostra_uniforme.Rdata")
+  saveRDS(am_poisson, "../trabalho pratico 2/amostra_poisson.Rdata")
+  saveRDS(am_exp, "../trabalho pratico 2/amostra_exponencial.Rdata")
+  saveRDS(am_normrej, "../trabalho pratico 2/amostra_normal_rejeicao.Rdata")
+  saveRDS(am_normpolar, "../trabalho pratico 2/amostra_normal_polar.Rdata")
+} else {
+  am_uni <- readRDS("../trabalho pratico 2/amostra_uniforme.Rdata")
+  am_poisson <- readRDS("../trabalho pratico 2/amostra_poisson.Rdata")
+  am_exp <- readRDS("../trabalho pratico 2/amostra_exponencial.Rdata")
+  am_normrej <- readRDS("../trabalho pratico 2/amostra_normal_rejeicao.Rdata")
+  am_normpolar <- readRDS("../trabalho pratico 2/amostra_normal_polar.Rdata")
+}
+
+# GRAFICO E TESTE UNIFORME
+ggplot(am_uni, aes(amostra))+
+  geom_histogram(aes(y = ..density..),color = 'white')+
+  stat_function(fun = dunif, color = 'red', args = list(min = 0, max = 1), size = 0.7)+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank()) 
+
+q1 <- sum(am_uni$amostra < .25)
+q2 <- sum(am_uni$amostra  >= .25 & am_uni$amostra < .5)
+q3 <- sum(am_uni$amostra  >= .5 & am_uni$amostra < .75)
+q4 <- sum(am_uni$amostra  >= .75 & am_uni$amostra <= 1)
+
+quartis <- c(q1,q2, q3, q4)/2000
+
+pvalor <- chisq.test(quartis, p = c(.25, .25, .25, .25))$p.value
+
+# GRAFICO E TESTE POISSON
+x.values <- seq(0, 10, 1)
+y2 <- dpois(x.values, 1)
+df2 <- data.frame(x.values, y2)
+
+ggplot(df2, aes(x=x.values, y=y2))+
+  geom_histogram(data = am_poisson, aes(x = amostra, y = ..density..),color = 'white', bins = 10)+
+  geom_point(stat="identity", width = 0.5, color = "red")+
+  geom_line(color = "red")+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0), limits = c(0, .4))+
+  scale_x_continuous(breaks = c(0:10), expand = c(0, 0.2))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank()) 
+
+q1 <- sum(am_poisson$amostra <= qpois(.25, lambda = 1))
+q2 <- sum(am_poisson$amostra  > qpois(.25, lambda = 1) & am_poisson$amostra <= qpois(.5, lambda = 1))
+q3 <- sum(am_poisson$amostra  > qpois(.5, lambda = 1) & am_poisson$amostra <= qpois(.75, lambda = 1))
+q4 <- sum(am_poisson$amostra  > qpois(.75, lambda = 1))
+
+quartis <- c(q1,q2, q3, q4)/2000
+
+p <- c(dpois(0, lambda = 1),dpois(1, lambda = 1), dpois(2, lambda = 1))
+p[4] <- 1-sum(p)
+
+pvalor <- chisq.test(quartis, p = p)$p.value
+
+# GRAFICO E TESTE EXPONENCIAL
+
+ggplot(am_exp, aes(amostra))+
+  geom_histogram(aes(y = ..density..),color = 'white')+
+  stat_function(fun = dexp, color = 'red', args = list(1))+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank()) 
+
+q1 <- sum(am_exp$amostra <= qexp(.25, rate = 1))
+q2 <- sum(am_exp$amostra  > qexp(.25, rate = 1) & am_exp$amostra <= qexp(.5, rate = 1))
+q3 <- sum(am_exp$amostra  > qexp(.5, rate = 1) & am_exp$amostra <= qexp(.75, rate = 1))
+q4 <- sum(am_exp$amostra  > qexp(.75, rate = 1))
+
+quartis <- c(q1,q2, q3, q4)/2000
+
+pvalor <- chisq.test(quartis, p = c(.25, .25, .25, .25))$p.value
+
+# GRAFICO E TESTE NORMAL
+
+ggplot(am_normrej, aes(amostra))+
+  geom_histogram(aes(y = ..density..),color = 'white')+
+  stat_function(fun = dnorm, color = 'red', args = list(mean = 0, sd = 1))+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0), limits = c(0, .42))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())
+q1 <- sum(am_normrej$amostra <= qnorm(.25))
+q2 <- sum(am_normrej$amostra  > qnorm(.25) & am_normrej$amostra <= qnorm(.5))
+q3 <- sum(am_normrej$amostra  > qnorm(.5) & am_normrej$amostra <= qnorm(.75))
+q4 <- sum(am_normrej$amostra  > qnorm(.75))
+
+quartis <- c(q1, q2, q3, q4)/2000
+
+pvalor <- chisq.test(quartis, p = c(.25, .25, .25, .25))$p.value
+
+polar_long <- am_normpolar %>%
+  pivot_longer(cols = everything(), names_to = 'eixo', values_to = 'values')
+
+ggplot(polar_long, aes(values))+
+  geom_histogram(aes(y = ..density..),color = 'white')+
+  stat_function(fun = dnorm, color = 'red', args = list(mean = 0, sd = 1))+
+  labs(x = "Amostra", y = "Densidade")+
+  scale_y_continuous(expand = c(0,0), limits = c(0, .42))+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())+
+  facet_wrap(vars(eixo),ncol = 2)
+q1 <- sum(am_normpolar$x <= qnorm(.25))
+q2 <- sum(am_normpolar$x  > qnorm(.25) & am_normpolar$x <= qnorm(.5))
+q3 <- sum(am_normpolar$x  > qnorm(.5) & am_normpolar$x <= qnorm(.75))
+q4 <- sum(am_normpolar$x  > qnorm(.75))
+
+quartis <- c(q1, q2, q3, q4)/2000
+
+pvalor <- chisq.test(quartis, p = c(.25, .25, .25, .25))$p.value
+
+# ESTIMACAO MONTECARLO
+set.seed(1234)
+y <- runif(10000)
+
+acumulada_normal <- function(b, n=10000){
+  h <- (1/sqrt(2*pi))*(exp((-(y*(b))^2)/2)*(b))
+  return(mean(h))
+}
+
+intervalos <- seq(0, 3.99, by = 0.01)
+
+montecarlo <- sapply(intervalos, acumulada_normal)+.5
+
+linhas <- seq(0.0,3.9,by=0.1)
+colunas <- seq(0.0,0.09,by=0.01)
+
+
+z <- matrix(montecarlo, ncol=10, byrow=TRUE, dimnames = list(linhas,colunas))
+
+# ESTIMACAO REJEICAO
+size <- length(am_normrej$amostra[am_normrej$amostra>0])
+
+estim_rej <- sort(am_normrej$amostra[am_normrej$amostra>0])
+
+intervalos <- seq(0, 3.99, by = 0.01)
+
+rej <- c()
+
+for(i in 1:length(intervalos)){
+  rej[i] <- length(estim_rej[estim_rej>0 & estim_rej<= intervalos[i]])/(2*size)
+}
+
+rej <- rej+.5
+
+linhas <- seq(0.0,3.9,by=0.1)
+colunas <- seq(0.0,0.09,by=0.01)
+
+z <- matrix(rej, ncol=10, byrow=TRUE, dimnames = list(linhas,colunas))
+
+# ESTIMACAO POLAR
+size <- length(am_normpolar$x[am_normpolar$x>0])
+
+estim_polar <- sort(am_normpolar$x[am_normpolar$x>0])
+
+intervalos <- seq(0, 3.99, by = 0.01)
+polar <- c()
+
+for(i in 1:length(intervalos)){
+  polar[i] <- length(estim_polar[estim_polar>0 & estim_polar<= intervalos[i]])/(2*size)
+}
+
+linhas <- seq(0.0,3.9,by=0.1)
+colunas <- seq(0.0,0.09,by=0.01)
+
+polar <- polar+.5
+
+z <- matrix(polar, ncol=10, byrow=TRUE, dimnames = list(linhas,colunas))
+
+# ESTIMACAO DOS ERROS
+erros <- data.frame(
+  rej, polar, montecarlo,
+  normal = NA
+)
+
+intervalos <- seq(0, 3.99, by = 0.01)
+
+for(i in 1:length(intervalos)){
+  erros$normal[i] <- pnorm(intervalos[i])
+}
+
+erros$erro_rej <- (erros$rej - erros$normal)
+erros$erro_polar <- (erros$polar - erros$normal)
+erros$erro_montecarlo <- (erros$montecarlo - erros$normal)
+
+erros <- erros %>% 
+  select(starts_with("erro")) %>%
+  pivot_longer(cols = everything(),names_to = "tipo", values_to = "erro") %>%
+  mutate(quantil = rep(intervalos, each = 3),
+         tipo = case_when(
+           tipo == "erro_rej" ~ "Rejeição",
+           tipo == "erro_polar" ~ "Polar",
+           tipo == "erro_montecarlo" ~ "Monte Carlo"
+         ))
+
+ggplot(erros, aes(x = quantil, y = erro))+
+  geom_point(size = .5)+
+  theme_bw() +
+  labs(x = "Quantil", y = "Erro")+
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        #panel.border = element_blank(),
+        axis.line = element_line(colour = "black")#,
+        #panel.grid = element_blank()
+        )+
+  facet_wrap(vars(tipo), nrow = 1)
 ```
 
 
