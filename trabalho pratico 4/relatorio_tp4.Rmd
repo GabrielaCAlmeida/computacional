@@ -1,0 +1,64 @@
+---
+title: "Relatório trabalho prático 4"
+author:
+- César A. Galvão 19/0011572
+- Gabriela Carneiro 18/0120816
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+output:
+  pdf_document: 
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    keep_tex: yes
+latex_engine: pdflatex
+header-includes:
+  \usepackage{helvet}
+  \renewcommand\familydefault{\sfdefault}
+include-before:
+- '`\newpage{}`{=latex}'
+---
+
+\let\oldsection\section
+\renewcommand\section{\clearpage\oldsection}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+library(broom)
+
+source("programa.R")
+```
+
+
+\begin{center} 
+
+\textbf{Resumo} 
+
+\end{center}
+
+Nesta atividade foram implementadas em R métodos para geração de variáveis aleatórias. Primeiramente foi criado um algoritmo para geração de 200.000 números pseudo-aleatórios uniformemente distribuídos entre (0, 1) pelo método congruencial linear. Este algoritmo foi então utilizado para gerar variáveis aleatórias para diferentes distribuições de probabilidade. A partir dos números pseudo-aleatórios, foram geradas 200.000 variáveis aleatórias de Poisson e 200.000 variáveis aleatórias em distribuição exponencial, pelo método da transformação inversa. Para gerar as 200.000 variáveis aleatórias em distribuição Normal foram utilizados dois métodos: o método da rejeição e método polar. Todas as variáveis geradas pelos métodos foram analisadas por meio de histogramas e teste de aderência. Todos os testes confirmaram que as variáveis geradas seguem as suas distribuições de referência. Por fim, foram geradas tabelas de probabilidade para a distribuição normal pelos métodos de Integração Monte Carlo, polar e da rejeição. Por meio das simulações feitas, pode-se concluir que os métodos de geração das variáveis aleatórias são eficientes e que dos métodos de geração utilizados para a construção das tabelas de probabilidade, o polar é o menos eficiente.^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
+
+
+# Introdução
+
+# Método
+
+## Método EM  
+
+## Amostrador de Gibbs  
+
+
+# Resultados  
+
+
+
+
+# Anexo A - código comentado {.unnumbered}
+
+
+```{r codigo-comentado, eval = FALSE}
+
+```
+
+
