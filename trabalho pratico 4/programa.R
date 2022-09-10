@@ -1,25 +1,9 @@
 # entrada de dados ----
 library(tidyverse)
 
-dados <- read.csv2("trabalho pratico 4/data.csv",
+dados <- read.csv2("data.csv",
                    col.names = c("lote", "defeituosos")) %>%
   mutate(prop = defeituosos/500)
-
-alfaa <- 1
-alfab <- 1
-betaa <- 1
-betab <- 1
-alfap <- 1
-betap <- 1
-B <- 10000
-S <- 10000
-
-
-
-
-# Para cada algoritmo, após obter as estimativas para p, θA e θB, 
-# plotar no mesmo gráfico o histograma dos dados juntamente com a 
-#função de probabilidade estimada para a mistura das binomiais
 
 # metodo EM ----
 
@@ -83,9 +67,36 @@ histograma_em <- ggplot(dados, aes(x = defeituosos))+
   geom_histogram(aes(y = ..density..),bins = 25, color = "white")+
   geom_point(data = dados_plot, aes(x = x, y = y))+
   labs(y = "Densidade", x = "Defeituosos")+
-  scale_y_continuous(expand = c(0,0))+
+  scale_y_continuous(expand = c(0,0), limits = c(0, 0.05))+
   theme_bw()+
-  theme(panel.grid = element_blank(),
-        panel.border = element_blank(),
-        axis.line = element_line())
-  
+  theme(#panel.grid = element_blank()#,
+        # panel.border = element_blank(),
+        # axis.line = element_line()
+        )
+
+
+# Amostrador de Gibbs ----
+alfaa <- 1
+alfab <- 1
+betaa <- 1
+betab <- 1
+alfap <- 1
+betap <- 1
+B <- 10000
+S <- 10000
+
+## inicializando os parametros ----
+set.seed(1234)
+thetaa <- rbeta(1,1,1)
+thetab <- rbeta(1,1,1)
+p2 <- rbeta(1,1,1)
+
+## iterações ----
+
+delta <- p2
+
+### delta ----
+
+### atualização dos parametros ----
+
+## media das S ultimas amostras ----

@@ -26,8 +26,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(kableExtra)
 library(broom)
-
-source("programa.R")
+getwd()
+list.files()
+source("programa.R", encoding = "UTF-8")
 ```
 
 
@@ -37,7 +38,7 @@ source("programa.R")
 
 \end{center}
 
-Nesta atividade foram implementadas em R métodos para geração de variáveis aleatórias. Primeiramente foi criado um algoritmo para geração de 200.000 números pseudo-aleatórios uniformemente distribuídos entre (0, 1) pelo método congruencial linear. Este algoritmo foi então utilizado para gerar variáveis aleatórias para diferentes distribuições de probabilidade. A partir dos números pseudo-aleatórios, foram geradas 200.000 variáveis aleatórias de Poisson e 200.000 variáveis aleatórias em distribuição exponencial, pelo método da transformação inversa. Para gerar as 200.000 variáveis aleatórias em distribuição Normal foram utilizados dois métodos: o método da rejeição e método polar. Todas as variáveis geradas pelos métodos foram analisadas por meio de histogramas e teste de aderência. Todos os testes confirmaram que as variáveis geradas seguem as suas distribuições de referência. Por fim, foram geradas tabelas de probabilidade para a distribuição normal pelos métodos de Integração Monte Carlo, polar e da rejeição. Por meio das simulações feitas, pode-se concluir que os métodos de geração das variáveis aleatórias são eficientes e que dos métodos de geração utilizados para a construção das tabelas de probabilidade, o polar é o menos eficiente.^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
+Nesta atividade foram implementadas em R um algoritmo EM e um método MCMC. Para cada algoritmo, foram estimados três parâmetros: probabilidade de o lote vir da máquina A ($p$) e a probabilidade de que, dado que uma determinada peça tenha sido produzida pela máquina A ou B, a peça seja defeituosa ($\theta_A$, $\theta_B$). Por fim, são apresentados histogramas com a função de probabilidade conjunta obtida pelos parâmetros estimados sobreposta em formato de pontos.^[Todos os documentos desse relatório podem ser verificados no repositório https://github.com/cesar-galvao/Estatistica-computacional]
 
 
 # Introdução
@@ -49,9 +50,40 @@ Nesta atividade foram implementadas em R métodos para geração de variáveis a
 ## Amostrador de Gibbs  
 
 
-# Resultados  
+# Resultados
 
+Para o método EM, obteve-se a seguinte estimativa final para os parâmetros ao final de `r contador` iterações:
 
+```{r tabela-parametros-EM, echo = FALSE}
+data.frame(ta = thetaA, tb = thetaB, p = p) %>%  
+knitr::kable(
+    format = "latex",
+    align = "c",
+    booktabs = TRUE,
+    longtable = TRUE,
+    linesep = "",
+    col.names = c("$\\theta_A$", "$\\theta_B$", "$p$"),
+    escape = FALSE
+    ) %>%
+  kableExtra::kable_styling(
+      position = "center",
+      latex_options = c("striped", "repeat_header"),
+      stripe_color = "gray!15")
+```
+
+A função de distribuição conjunta, com os parâmetros obtidos pelo algoritmo EM, é
+
+\begin{align}
+  P(y) = (1-p)P(y|\theta_A) + p P(y|\theta_B).
+\end{align}
+
+Além disso, obteve-se o seguinte histograma com a função de distribuição conjunta, representada por pontos:
+
+```{r histograma-EM, echo = FALSE, out.width="60%", fig.margin=TRUE, fig.align='center', fig.cap="Histograma de da amostra e função de distribuição conjunta com parâmetros obtidos pelo algoritmo EM."}
+histograma_em
+```
+
+Para o amostrador de Gibbs, 
 
 
 # Anexo A - código comentado {.unnumbered}
