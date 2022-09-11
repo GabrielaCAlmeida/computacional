@@ -76,27 +76,99 @@ histograma_em <- ggplot(dados, aes(x = defeituosos))+
 
 
 # Amostrador de Gibbs ----
-alfaa <- 1
-alfab <- 1
-betaa <- 1
-betab <- 1
-alfap <- 1
-betap <- 1
-B <- 10000
-S <- 10000
 
 ## inicializando os parametros ----
-set.seed(1234)
+
 thetaa <- rbeta(1,1,1)
 thetab <- rbeta(1,1,1)
 p2 <- rbeta(1,1,1)
 
 ## iterações ----
 
-delta <- p2
+### prepara dados de iteração com primeiro delta ----
+itera2 <- dados %>% 
+  mutate(delta1 = (p2*dbinom(defeituosos, size = 500, prob = thetab))/
+           ((1-p2)*dbinom(defeituosos, size = 500, prob = thetaa)+
+              p2*dbinom(defeituosos, size = 500, prob = thetab)),
+         um_menos_delta1 = 1-delta1)
+  
+  
+### inicia iterações ----
 
-### delta ----
+vec_thetaa <- c()
+vec_thetab <- c()
+vec_p <- c()
 
-### atualização dos parametros ----
+for(i in 1:20000){
+  #### atualiza parametros ----
+  
+  alfaa <- 1+sum(itera2$defeituosos*itera2$um_menos_delta1)
+  betaa <- 1+sum((500-itera2$defeituosos)*itera2$um_menos_delta1)
+  
+  alfab <- 1+sum(itera2$defeituosos*itera2$delta1)
+  betab <- 1+sum((500-itera2$defeituosos)*itera2$delta1)
+  
+  alfap <- 1+sum(itera2$delta1)
+  betap <- 1+sum(itera2$um_menos_delta1)
+
+  thetaa <- rbeta(1, alfaa, betaa)
+  thetab <- rbeta(1, alfab, betab)
+  p2 <- rbeta(1, alfap, betap)
+  
+  vec_thetaa[i] <- thetaa
+  vec_thetab[i] <- thetab
+  vec_p[i] <- p2
+  
+  
+  #### atualiza delta ----
+  
+  itera2 <- itera2 %>%
+    mutate(delta1 = p2*dbinom(defeituosos, size = 500, prob = thetab)/
+             ((1-p2)*dbinom(defeituosos, size = 500, prob = thetaa)+
+                p2*dbinom(defeituosos, size = 500, prob = thetab)),
+           um_menos_delta1 = 1-delta1)
+}
 
 ## media das S ultimas amostras ----
+
+thetaa_final <- mean(vec_thetaa[10001:20000])
+thetab_final <- mean(vec_thetab[10001:20000])
+p2_final <- mean(vec_p[10001:20000])
+
+## funcao de probabilidade ----
+Py2 <- function(y){
+  return((1-p2_final)*dbinom(y, size = 500, prob = thetaa_final)+
+           p2_final*dbinom(y, size = 500, prob = thetab_final))
+}
+
+## histograma ----
+
+dados_plot2 <- data.frame(x = dados$defeituosos, y = Py2(dados$defeituosos))
+
+histograma_gibbs <- ggplot(dados, aes(x = defeituosos))+
+  geom_histogram(aes(y = ..density..),bins = 25, color = "white")+
+  geom_point(data = dados_plot2, aes(x = x, y = y))+
+  labs(y = "Densidade", x = "Defeituosos")+
+  #scale_y_continuous(expand = c(0,0), limits = c(0, 0.05))+
+  theme_bw()+
+  theme(#panel.grid = element_blank()#,
+    # panel.border = element_blank(),
+    # axis.line = element_line()
+  )
+
+# diferença entre os métodos ----
+
+diferencas <- data.frame(
+  x = 1:500,
+  amostra = dados$defeituosos,
+  em = Py(dados$defeituosos),
+  gibbs = Py2(dados$defeituosos)
+) %>% mutate(diff = em-gibbs)
+
+options(scipen = 99999)
+maxdiff <- max(diferencas$diff) %>% round(5)
+
+graf_diff <- ggplot(diferencas, aes(x = x, y = diff))+
+  geom_point()+
+  labs(y = "Diferença EM x Gibbs", x = "Amostra")+
+  theme_bw()
